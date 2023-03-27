@@ -100,6 +100,16 @@ const generatePokemon = async (req, res) => {
       })
     })
 
+    let stats = []
+
+    foundPokemon.data.stats.forEach(stat => {
+      stats.push({
+        name: `${stat.stat.name}`,
+        baseStat: stat.base_stat,
+        effort: stat.effort,
+      })
+    })
+
     const generatedPokemon = {
       name: foundPokemon.data.name,
       level: req.body.level,
@@ -107,6 +117,9 @@ const generatePokemon = async (req, res) => {
       pokedexNum: foundPokemon.data.id,
       potentialMoves: potMoves,
       moveSet: moveSet,
+      spriteFront: `${foundPokemon.data.sprites.front_default}`,
+      spriteBack: `${foundPokemon.data.sprites.back_default}`,
+      stats: stats
     }
 
 

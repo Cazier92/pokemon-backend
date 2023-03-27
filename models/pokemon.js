@@ -37,6 +37,12 @@ const moveSchema = new Schema({
   priority: {type: Number, required: true},
 })
 
+const statSchema = new Schema({
+  name: {type: String, required: true},
+  baseStat: {type: Number, required: true},
+  effort: {type: Number, required: true}
+})
+
 const pokemonSchema = new Schema({
   name: {type: String, required: true},
   level: {type: Number, required: true, min: 1, max: 100, default: 5},
@@ -48,6 +54,9 @@ const pokemonSchema = new Schema({
     min: 1,
     max: 4
   },
+  spriteFront: String,
+  spriteBack: String,
+  stats: [statSchema],
   owner: {type: Schema.Types.ObjectId, ref: 'Profile'},
 },{
   timestamps: true,
