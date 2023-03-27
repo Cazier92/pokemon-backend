@@ -3,15 +3,26 @@ import { bulbasaur } from '../data/bulbasaur.js';
 
 const create = async (req, res) => {
   try {
-    req.body.author = req.user.profile;
-
+    let potentialMoves = []
+    bulbasaur.moves.forEach(move => {
+      potentialMoves.push(move)
+    })
+    req.body.potentialMoves = potentialMoves
+    let moveSet = []
+    let eggMoves = []
+    bulbasaur.moves.forEach(move => {
+      if (move.version_group_details[0].move_learn_method.name === 'egg') {
+        eggMoves.push(move)
+      }
+    })
+    let randomNum = Math.ceil(Math.random()*4)
+    
+    for (let i = randomNum; i >= 0; i--) {
+      let eggRandom = Math.floor(Math.random() * eggMoves.length)
+      moveSet.push(eggMoves[eggRandom])
+    }
+    req.body.moveSet = moveSet
     const pokemon = await Pokemon.create(req.body);
-    // const profile = await Profile.findByIdAndUpdate(
-    //   req.user.profile,
-    //   { currentStatus: req.body.emotion, $push: { emotionPosts: emotionPost } },
-    //   { new: true }
-    // );
-
     res.status(201).json(pokemon);
   } catch (error) {
     console.log(error);
@@ -27,7 +38,7 @@ const test = async(req, res) => {
         theseMoves.push(move)
       }
     })
-    
+
     const testPokemon = {
       name: 'bulbasaur',
       moves: []
