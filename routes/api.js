@@ -8,7 +8,7 @@ const router = Router()
 
 router.get('/pokemon/:name', apiCtrl.findPokemon)
 router.get('/move', apiCtrl.findMove)
-router.get('/gen/:num', apiCtrl.generatePokemon)
+router.get('/gen/:num/:level', apiCtrl.generatePokemon)
 
 /*---------- Protected Routes ----------*/
 

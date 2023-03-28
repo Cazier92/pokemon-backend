@@ -22,9 +22,16 @@ const findMove = async (req, res) => {
 
 const generatePokemon = async (req, res) => {
   try {
-    if (req.body.level === undefined) {
-      req.body.level = 5
+    let pokemonLevel
+
+    if (!Number(req.params.level) || Number(req.params.level) > 100 || Number(req.params.level) < 1) {
+      pokemonLevel = 5
+    } else {
+      pokemonLevel = Number(req.params.level)
     }
+
+
+
 
     const foundPokemon = await axios.get(`https://pokeapi.co/api/v2/pokemon/${req.params.num}`)
 
@@ -41,11 +48,17 @@ const generatePokemon = async (req, res) => {
       )
     })
 
-
+    
+    
     let eggMoves = []
-
+    
     foundPokemon.data.moves.forEach(move => {
       if (move.version_group_details[0].move_learn_method.name === 'egg') {
+        eggMoves.push(move)
+      }
+    })
+    foundPokemon.data.moves.forEach(move => {
+      if (move.version_group_details[0].move_learn_method.name === 'machine' && move.version_group_details[0].level_learned_at <= pokemonLevel) {
         eggMoves.push(move)
       }
     })
@@ -93,6 +106,12 @@ const generatePokemon = async (req, res) => {
         power: move.power,
         priority: move.priority,
       })
+    })
+
+    moveSet.forEach(move => {
+      if (move.effect.includes('$')) {
+        move.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+      }
     })
 
     let typeSet = []
@@ -187,7 +206,7 @@ const generatePokemon = async (req, res) => {
 
     const generatedPokemon = {
       name: foundPokemon.data.name,
-      level: req.body.level,
+      level: pokemonLevel,
       types: typeSet,
       pokedexNum: foundPokemon.data.id,
       potentialMoves: potMoves,
