@@ -52,7 +52,7 @@ const evolutionSchema = new Schema({
 
 const pokemonSchema = new Schema({
   name: {type: String, required: true},
-  level: {type: Number, required: true, min: 1, max: 100, default: 5},
+  level: {type: Number, min: 1, max: 100, required: true},
   types: {type: [typeSchema], required: true},
   pokedexNum: {type: Number, required: true},
   potentialMoves: {type: [potentialMoveSchema], required: true},

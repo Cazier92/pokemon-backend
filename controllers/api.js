@@ -22,6 +22,10 @@ const findMove = async (req, res) => {
 
 const generatePokemon = async (req, res) => {
   try {
+    if (req.body.level === undefined) {
+      req.body.level = 5
+    }
+    
     const foundPokemon = await axios.get(`https://pokeapi.co/api/v2/pokemon/${req.params.num}`)
 
     let potMoves = []
