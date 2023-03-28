@@ -110,6 +110,76 @@ const generatePokemon = async (req, res) => {
       })
     })
 
+    const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${req.params.num}`)
+
+    const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
+
+    let evolves = false
+    let evolvesTo = []
+
+    if (evolutionChainData.data.chain.species.name === foundPokemon.data.name){
+      if (evolutionChainData.data.chain.evolves_to.length > 1) {
+        evolutionChainData.data.chain.evolves_to.forEach(evolution => {
+          if (evolution.evolution_details[0].item !== null) {
+            evolvesTo.push({
+              name: `${evolution.species.name}`,
+              trigger: evolution.evolution_details[0].trigger.name,
+              minLevel: evolution.evolution_details[0].min_level,
+              item: `${evolution.evolution_details[0].item.name}`
+            })
+          } else {
+            evolvesTo.push({
+              name: `${evolution.species.name}`,
+              trigger: evolution.evolution_details[0].trigger.name,
+              minLevel: evolution.evolution_details[0].min_level,
+              item: null
+            })
+          }
+        })
+      }
+    } else {
+      if (evolutionChainData.data.chain.species.name === foundPokemon.data.name){
+        if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item !== null) {
+          evolves = true
+          evolvesTo = {
+            name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+            minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+            item: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item.name}`
+          }
+        } else if (evolutionChainData.data.chain.evolves_to.length) {
+          evolves = true
+          evolvesTo = {
+            name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+            minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+            item: null
+          }
+        }
+      } 
+      else if (evolutionChainData.data.chain.evolves_to[0].species.name === foundPokemon.data.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
+        if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name !== null) {
+          evolves = true
+          evolvesTo = {
+            name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
+            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
+            minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
+            item: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name}`
+        }
+        } else {
+          evolves = true
+          evolvesTo = {
+            name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
+            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
+            minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
+        }
+        }
+      }
+
+    }
+
+
+
     const generatedPokemon = {
       name: foundPokemon.data.name,
       level: req.body.level,
@@ -119,7 +189,9 @@ const generatePokemon = async (req, res) => {
       moveSet: moveSet,
       spriteFront: `${foundPokemon.data.sprites.front_default}`,
       spriteBack: `${foundPokemon.data.sprites.back_default}`,
-      stats: stats
+      stats: stats,
+      evolves: evolves,
+      evolvesTo: evolvesTo,
     }
 
 

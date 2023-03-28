@@ -43,6 +43,13 @@ const statSchema = new Schema({
   effort: {type: Number, required: true}
 })
 
+const evolutionSchema = new Schema({
+  name: String,
+  trigger: String,
+  minLevel: Number || null,
+  item: String || null,
+})
+
 const pokemonSchema = new Schema({
   name: {type: String, required: true},
   level: {type: Number, required: true, min: 1, max: 100, default: 5},
@@ -57,6 +64,8 @@ const pokemonSchema = new Schema({
   spriteFront: String,
   spriteBack: String,
   stats: [statSchema],
+  evolves: {type: Boolean, required: true},
+  evolvesTo: [evolutionSchema],
   owner: {type: Schema.Types.ObjectId, ref: 'Profile'},
 },{
   timestamps: true,
