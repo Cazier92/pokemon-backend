@@ -160,6 +160,10 @@ const generatePokemon = async (req, res) => {
 
     const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${req.params.num}`)
 
+    let captureRate = speciesData.data.capture_rate
+    let growthRate = speciesData.data.growth_rate.name
+
+
     const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
 
     let evolves = false
@@ -225,6 +229,71 @@ const generatePokemon = async (req, res) => {
         }
 
       }
+    }
+
+    let currentExp
+
+    let nextLevelExp
+
+    if (growthRate === 'fast') {
+      currentExp = 4*(pokemonLevel**3)
+      nextLevelExp = 4*((pokemonLevel + 1)**3)
+    } 
+    else if (growthRate === 'medium-fast') {
+      currentExp = (pokemonLevel**3)
+      nextLevelExp = ((pokemonLevel + 1)**3)
+    } 
+    else if (growthRate === 'slow') {
+      currentExp = ((5 * (pokemonLevel **3)) / 4)
+      nextLevelExp = ((5 * ((pokemonLevel + 1) **3)) / 4)
+    } 
+    else if (growthRate === 'medium-slow') {
+      currentExp = ((6/5) * pokemonLevel**3) - (15 * pokemonLevel ** 2) + (100 * pokemonLevel) - 140
+      nextLevelExp = ((6/5) * (pokemonLevel + 1)**3) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140
+    } 
+    else if (growthRate === 'fluctuating') {
+      if (pokemonLevel + 1 < 15) {
+        currentExp = (((pokemonLevel **3) * (((pokemonLevel + 1)/3) +24)) /50)
+        nextLevelExp = ((((pokemonLevel + 1) **3) * ((((pokemonLevel + 1) + 1)/3) +24)) /50)
+      } else if (pokemonLevel + 1 <=15 && pokemonLevel + 1 < 36) {
+        currentExp = (((pokemonLevel ** 3)*(pokemonLevel + 14))/50)
+        nextLevelExp = ((((pokemonLevel + 1) ** 3)*((pokemonLevel + 1) + 14))/50)
+      } else {
+        currentExp = (((pokemonLevel **3) * ((pokemonLevel / 2) + 32))/50)
+        nextLevelExp = ((((pokemonLevel + 1) **3) * (((pokemonLevel + 1) / 2) + 32))/50)
+      }
+    }
+    else {
+      if (pokemonLevel + 1 < 50) {
+        currentExp = (pokemonLevel**3 * (100 - pokemonLevel) / 50)
+        nextLevelExp = ((pokemonLevel + 1)**3 * (100 - (pokemonLevel + 1)) / 50)
+      } else if (pokemonLevel + 1 <= 50 && pokemonLevel + 1 < 68) {
+        currentExp = (pokemonLevel**3 * (150 - pokemonLevel) / 100)
+        nextLevelExp = ((pokemonLevel + 1)**3 * (150 - (pokemonLevel + 1)) / 100)
+      } else if (pokemonLevel + 1 <= 68 && pokemonLevel + 1 < 98) {
+        currentExp = ((pokemonLevel**3 * (1911 - pokemonLevel*10) / 3) / 500)
+        nextLevelExp = (((pokemonLevel + 1)**3 * (1911 - (pokemonLevel + 1)*10) / 3) / 500)
+      } else {
+        currentExp = ((pokemonLevel**3 * (160 - pokemonLevel)) / 100)
+        nextLevelExp = (((pokemonLevel + 1)**3 * (160 - (pokemonLevel + 1))) / 100)
+      }
+    }
+
+    currentExp = Math.floor(currentExp)
+    nextLevelExp = Math.floor(nextLevelExp)
+
+    if (pokemonLevel === 100) {
+      nextLevelExp = NaN
+    }
+
+    let levelBaseExp = currentExp
+
+    let percentToNextLevel
+
+    if (pokemonLevel < 100 && currentExp > levelBaseExp) {
+      percentToNextLevel = (nextLevelExp - (currentExp))/(nextLevelExp - levelBaseExp)
+    } else {
+      percentToNextLevel = 0
     } 
 
 
@@ -251,6 +320,12 @@ const generatePokemon = async (req, res) => {
       speed: speed,
       effortPointTotal: 0,
       statusCondition: null,
+      captureRate: captureRate,
+      growthRate: growthRate,
+      levelBaseExp: levelBaseExp,
+      currentExp: currentExp,
+      percentToNextLevel: percentToNextLevel,
+      nextLevelExp: nextLevelExp,
     }
 
 

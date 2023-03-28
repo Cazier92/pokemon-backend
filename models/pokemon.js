@@ -78,6 +78,12 @@ const pokemonSchema = new Schema({
   speed: Number,
   effortPointTotal: {type: Number, min: 0, max: 510},
   statusCondition: String || null,
+  captureRate: Number,
+  growthRate: String,
+  levelBaseExp: Number,
+  currentExp: Number,
+  percentToNextLevel: Number,
+  nextLevelExp: Number || NaN,
 },{
   timestamps: true,
 })
