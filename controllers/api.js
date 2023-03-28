@@ -125,13 +125,38 @@ const generatePokemon = async (req, res) => {
 
     let stats = []
 
+    let hp, attack, spAttack, defense, spDefense, speed
+
     foundPokemon.data.stats.forEach(stat => {
+      let randomNumIV = Math.floor(Math.random() * 32)
       stats.push({
         name: `${stat.stat.name}`,
         baseStat: stat.base_stat,
         effort: stat.effort,
+        iv: randomNumIV,
+        effortPoints: 0,
       })
+      if (stat.stat.name === 'hp') {
+        hp = ((((2 * stat.base_stat + randomNumIV) * pokemonLevel)/ 100) + pokemonLevel + 10)
+      } 
+      else if (stat.stat.name === 'attack') {
+        attack = ((((2 * stat.base_stat + randomNumIV) * pokemonLevel)/100) + 5)
+      }
+      else if (stat.stat.name === 'defense') {
+        defense = ((((2 * stat.base_stat + randomNumIV) * pokemonLevel)/100) + 5)
+      }
+      else if (stat.stat.name === 'special-defense') {
+        spDefense = ((((2 * stat.base_stat + randomNumIV) * pokemonLevel)/100) + 5)
+      }
+      else if (stat.stat.name === 'special-attack') {
+        spAttack = ((((2 * stat.base_stat + randomNumIV) * pokemonLevel)/100) + 5)
+      }
+      else if (stat.stat.name === 'speed') {
+        speed = ((((2 * stat.base_stat + randomNumIV) * pokemonLevel)/100) + 5)
+      }
     })
+
+
 
     const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${req.params.num}`)
 
@@ -204,6 +229,7 @@ const generatePokemon = async (req, res) => {
 
 
 
+
     const generatedPokemon = {
       name: foundPokemon.data.name,
       level: pokemonLevel,
@@ -216,6 +242,15 @@ const generatePokemon = async (req, res) => {
       stats: stats,
       evolves: evolves,
       evolvesTo: evolvesTo,
+      totalHP: hp,
+      currentHP: hp,
+      attack: attack,
+      spAttack: spAttack,
+      defense: defense,
+      spDefense: spDefense,
+      speed: speed,
+      effortPointTotal: 0,
+      statusCondition: null,
     }
 
 

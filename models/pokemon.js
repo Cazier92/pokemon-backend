@@ -40,7 +40,9 @@ const moveSchema = new Schema({
 const statSchema = new Schema({
   name: {type: String, required: true},
   baseStat: {type: Number, required: true},
-  effort: {type: Number, required: true}
+  effort: {type: Number, required: true},
+  iV: {type: Number, required: true, min: 0, max: 31},
+  effortPoints: {type: Number, required: true, min: 0, max: 255}
 })
 
 const evolutionSchema = new Schema({
@@ -52,6 +54,7 @@ const evolutionSchema = new Schema({
 
 const pokemonSchema = new Schema({
   name: {type: String, required: true},
+  owner: {type: Schema.Types.ObjectId, ref: 'Profile'},
   level: {type: Number, min: 1, max: 100, required: true},
   types: {type: [typeSchema], required: true},
   pokedexNum: {type: Number, required: true},
@@ -66,7 +69,15 @@ const pokemonSchema = new Schema({
   stats: [statSchema],
   evolves: {type: Boolean, required: true},
   evolvesTo: [evolutionSchema],
-  owner: {type: Schema.Types.ObjectId, ref: 'Profile'},
+  totalHP: Number,
+  currentHP: Number,
+  attack: Number,
+  spAttack: Number,
+  defense: Number,
+  spDefense: Number,
+  speed: Number,
+  effortPointTotal: {type: Number, min: 0, max: 510},
+  statusCondition: String || null,
 },{
   timestamps: true,
 })
