@@ -26,6 +26,46 @@ const updatePokemon = async (req, res) => {
   }
 }
 
+const levelUpPokemon = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.findById(req.params.id)
+
+    if (pokemon.currentExp >= pokemon.nextLevelExp) {
+      let LevelUpForm
+      let hp, attack, spAttack, defense, spDefense, speed
+
+      const pokemonLevel = pokemon.level + 1
+
+      pokemon.stats.forEach(stat => {
+        if (stat.name === 'hp') {
+          hp = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
+        } 
+        else if (stat.name === 'attack') {
+          attack = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        }
+        else if (stat.name === 'defense') {
+          defense = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        }
+        else if (stat.name === 'special-defense') {
+          spDefense = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        }
+        else if (stat.name === 'special-attack') {
+          spAttack = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        }
+        else if (stat.name === 'speed') {
+          speed = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        }
+      })
+      
+    } else {
+      res.status(200).json(pokemon)
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+}
+
 const evolvePokemon = async (req, res) => {
   try {
     const pokemon = await Pokemon.findById(req.params.id)
@@ -144,22 +184,22 @@ const evolvePokemon = async (req, res) => {
             effortPoints: stat.effortPoints
           })
           if (eStat.name === 'hp') {
-            hp = ((((2 * eStat.base_stat + stat.iV) * pokemonLevel)/ 100) + pokemonLevel + 10)
+            hp = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
           } 
           else if (eStat.name === 'attack') {
-            attack = ((((2 * eStat.base_stat + stat.iV) * pokemonLevel)/100) + 5)
+            attack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
           }
           else if (eStat.name === 'defense') {
-            defense = ((((2 * eStat.base_stat + stat.iV) * pokemonLevel)/100) + 5)
+            defense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
           }
           else if (eStat.name === 'special-defense') {
-            spDefense = ((((2 * eStat.base_stat + stat.iV) * pokemonLevel)/100) + 5)
+            spDefense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
           }
           else if (eStat.name === 'special-attack') {
-            spAttack = ((((2 * eStat.base_stat + stat.iV) * pokemonLevel)/100) + 5)
+            spAttack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
           }
           else if (eStat.name === 'speed') {
-            speed = ((((2 * eStat.base_stat + stat.iV) * pokemonLevel)/100) + 5)
+            speed = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
           }
         }
       })
@@ -225,5 +265,6 @@ const evolvePokemon = async (req, res) => {
 export { 
   create,
   updatePokemon,
+  levelUpPokemon,
   evolvePokemon,
 }

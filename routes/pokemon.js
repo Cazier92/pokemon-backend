@@ -8,6 +8,9 @@ const router = Router()
 
 // router.get('/test', pokemonCtrl.test)
 router.post('/', pokemonCtrl.create)
+router.put('/update/:id', pokemonCtrl.updatePokemon)
+router.put('/levelup/:id', pokemonCtrl.levelUpPokemon)
+router.put('/evolve/:id', pokemonCtrl.evolvePokemon)
 
 /*---------- Protected Routes ----------*/
 
