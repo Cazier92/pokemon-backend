@@ -6,7 +6,7 @@ const router = Router()
 
 /*---------- Public Routes ----------*/
 
-router.get('/test', pokemonCtrl.test)
+// router.get('/test', pokemonCtrl.test)
 router.post('/', pokemonCtrl.create)
 
 /*---------- Protected Routes ----------*/
