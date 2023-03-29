@@ -56,7 +56,27 @@ const levelUpPokemon = async (req, res) => {
           speed = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
         }
       })
+
+      let currentHP = (pokemon.currentHP/ pokemon.totalHP) * hp
+
+      LevelUpForm = {
+        level: pokemonLevel,
+        totalHp: hp,
+        currentHP: currentHP,
+        attack: attack,
+        spAttack: spAttack,
+        defense: defense,
+        spDefense: spDefense,
+        speed: speed,
+      }
+
+      const leveledUpPokemon = await Pokemon.findByIdAndUpdate(
+        req.params.id,
+        LevelUpForm,
+        { new: true }
+      ).populate('owner')
       
+      res.status(200).json(leveledUpPokemon)
     } else {
       res.status(200).json(pokemon)
     }
