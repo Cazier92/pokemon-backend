@@ -27,13 +27,13 @@ const potentialMoveSchema = new Schema({
 const moveSchema = new Schema({
   name: {type: String, required: true},
   type: {type: String, required: true},
-  accuracy: {type: Number || null, required: true},
+  accuracy: {type: Number || null},
   effect: {type: String, required: true},
-  effectChance: {type: Number || null, required: true},
+  effectChance: {type: Number || null},
   damageClass: {type: String, required: true},
   totalPP: {type: Number, required: true},
   currentPP: {type: Number, required: true},
-  power: {type: Number, required: true},
+  power: {type: Number || null},
   priority: {type: Number, required: true},
 })
 

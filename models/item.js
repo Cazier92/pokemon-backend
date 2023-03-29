@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const Schema = mongoose.Schema
 
-const profileSchema = new Schema({
+const itemSchema = new Schema({
   name: String,
   photo: String,
   party: [{type: Schema.Types.ObjectId, ref: 'Pokemon', max: 6 }],
@@ -11,6 +11,6 @@ const profileSchema = new Schema({
   timestamps: true,
 })
 
-const Profile = mongoose.model('Profile', profileSchema)
+const Item = mongoose.model('Item', itemSchema)
 
-export { Profile }
+export { Item }
