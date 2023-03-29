@@ -391,7 +391,16 @@ const generatePokemon = async (req, res) => {
                   item: `${evolutionType.item.name}`
                 })
   
-              } else {
+              } else if (evolutionType.held_item !== null) {
+                evolves = true
+                evolvesTo.push({
+                  name: `${evolution.species.name}`,
+                  trigger: evolutionType.trigger.name,
+                  minLevel: evolutionType.min_level,
+                  heldItem: `${evolutionType.held_item.name}`
+                })
+              }
+              else {
                 evolves = true
                 evolvesTo.push({
                   name: `${evolution.species.name}`,
@@ -414,7 +423,15 @@ const generatePokemon = async (req, res) => {
               minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
               item: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item.name}`
             })
-          } 
+          } else if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].held_item !== null) {
+            evolves = true
+            evolvesTo.push({
+              name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+              trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+              minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+              heldItem: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].held_item.name}`
+            })
+          }
           else if (evolutionChainData.data.chain.evolves_to.length) {
             evolves = true
             evolvesTo.push({

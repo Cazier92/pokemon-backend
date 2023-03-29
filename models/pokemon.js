@@ -50,6 +50,7 @@ const evolutionSchema = new Schema({
   trigger: String,
   minLevel: Number || null,
   item: String || null,
+  heldItem: String
 })
 
 const pokemonSchema = new Schema({
