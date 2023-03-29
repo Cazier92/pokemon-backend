@@ -133,7 +133,7 @@ const generatePokemon = async (req, res) => {
         name: `${stat.stat.name}`,
         baseStat: stat.base_stat,
         effort: stat.effort,
-        iv: randomNumIV,
+        iV: randomNumIV,
         effortPoints: 0,
       })
       if (stat.stat.name === 'hp') {
@@ -218,27 +218,6 @@ const generatePokemon = async (req, res) => {
             item: null
           })
         }
-        // else if (evolutionChainData.data.chain.evolves_to[0].species.name === foundPokemon.data.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
-        //   if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item !== null) {
-        //     evolves = true
-        //     evolvesTo.push(
-        //       {
-        //         name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
-        //         trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
-        //         minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
-        //         item: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name}`
-        //     }
-        //     ) 
-        //   } else {
-        //     evolves = true
-        //     evolvesTo.push({
-        //       name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
-        //       trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
-        //       minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
-        //   })
-        //   }
-        // }
-
       }
 
     } else if (evolutionChainData.data.chain.evolves_to[0].species.name === foundPokemon.data.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
@@ -260,7 +239,6 @@ const generatePokemon = async (req, res) => {
           minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
       })
       }
-      
     }
 
     let currentExp
