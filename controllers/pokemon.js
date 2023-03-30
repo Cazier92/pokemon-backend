@@ -4,6 +4,9 @@ import * as algorithms from '../data/algorithms.js'
 
 const create = async (req, res) => {
   try {
+    req.body.owner = req.user.profile
+    req.body.originalOwner = req.user.profile
+    console.log(req.user)
     const pokemon = await Pokemon.create(req.body)
     res.status(201).json(pokemon)
   } catch (error) {
