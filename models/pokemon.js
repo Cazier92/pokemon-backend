@@ -55,7 +55,9 @@ const evolutionSchema = new Schema({
 
 const pokemonSchema = new Schema({
   name: {type: String, required: true},
+  nickname: {type: String, required: false},
   owner: {type: Schema.Types.ObjectId, ref: 'Profile'},
+  originalOwner: {type: Schema.Types.ObjectId, ref: 'Profile'},
   level: {type: Number, min: 1, max: 100, required: true},
   types: {type: [typeSchema], required: true},
   pokedexNum: {type: Number, required: true},
@@ -86,6 +88,7 @@ const pokemonSchema = new Schema({
   percentToNextLevel: Number,
   nextLevelExp: Number || NaN,
   baseExpYield: Number,
+  holdItem: Object || null,
 },{
   timestamps: true,
 })

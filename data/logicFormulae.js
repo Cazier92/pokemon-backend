@@ -80,3 +80,50 @@ const greatBall = {
 catchPokemon(bulbasaur, greatBall)
 
 
+
+
+//! Experience Gain algorithm:
+//& expGain = ((b * l) / 7) * (1 / s) * e * a * t
+/*
+& Where: a = 1 if fainted pokemon is wild, 1.5 if owned by a trainer
+& b = baseExpYield of fainted pokemon
+& e = 1.5 if pokemon is holding a lucky egg, else 1
+& l = level of fainted pokemon
+& s = the number of pokemon that participated in the battle w/o fainting
+& t = 1 if the winning pokemon's owner === originalOwner, 1.5 if not
+*/
+
+function expGainCalc(faintedPokemon, winner, participants) {
+  let a, b, e, l, s, t
+
+  if (faintedPokemon.owner) {
+    a = 1.5
+  } else {
+    a = 1
+  }
+
+  b = faintedPokemon.baseExpYield
+
+  if (winner.holdItem && winner.holdItem.name === 'Lucky Egg') {
+    e = 1.5
+  } else {
+    e = 1
+  }
+
+  l = faintedPokemon.level
+
+  s = participants.length
+
+  if (winner.originalOwner === winner.owner) {
+    t = 1
+  } else {
+    t = 1.5
+  }
+
+  const expGain = ((b * l) / 7) * (1 / s) * e * a * t
+
+  return expGain
+
+}
+
+

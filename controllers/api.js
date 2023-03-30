@@ -560,7 +560,8 @@ const generatePokemon = async (req, res) => {
         currentExp: currentExp,
         percentToNextLevel: percentToNextLevel,
         nextLevelExp: nextLevelExp,
-        baseExpYield: foundPokemon.data.base_experience
+        baseExpYield: foundPokemon.data.base_experience,
+        holdItem: null,
       }
   
       res.status(200).json(generatedPokemon)
