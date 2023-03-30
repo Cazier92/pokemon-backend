@@ -1,5 +1,4 @@
 import { Pokemon } from '../models/pokemon.js'
-import { bulbasaur } from '../data/bulbasaur.js';
 import axios from 'axios';
 
 const create = async (req, res) => {

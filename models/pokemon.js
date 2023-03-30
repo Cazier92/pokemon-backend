@@ -85,6 +85,7 @@ const pokemonSchema = new Schema({
   currentExp: Number,
   percentToNextLevel: Number,
   nextLevelExp: Number || NaN,
+  baseExpYield: Number,
 },{
   timestamps: true,
 })
