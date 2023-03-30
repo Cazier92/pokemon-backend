@@ -55,9 +55,9 @@ const expGain = async (req, res) => {
 
     if (`${pokemon._id}` === winner) {
       faintedPokemon.stats.forEach(stat => {
-        if (stat.effort > 0) {
+        // if (stat.effort > 0) {
           effortGains.push(stat)
-        }
+        // }
       })
   
       if (effortPointTotal < 510) {
@@ -181,6 +181,10 @@ const levelUpPokemon = async (req, res) => {
         }
       })
 
+      console.log('hp', hp)
+      console.log('currentHP', pokemon.currentHP)
+      console.log('totalHP', pokemon.totalHP)
+
       let currentHP = (pokemon.currentHP/ pokemon.totalHP) * hp
 
       let levelBaseExp
@@ -249,7 +253,7 @@ const levelUpPokemon = async (req, res) => {
         percentToNextLevel = 0
       } 
 
-      LevelUpForm = {
+      const levelUpForm = {
         level: pokemonLevel,
         totalHp: hp,
         currentHP: currentHP,
@@ -265,7 +269,7 @@ const levelUpPokemon = async (req, res) => {
 
       const leveledUpPokemon = await Pokemon.findByIdAndUpdate(
         req.params.id,
-        LevelUpForm,
+        levelUpForm,
         { new: true }
       ).populate('owner')
 
@@ -304,19 +308,22 @@ const evolvePokemon = async (req, res) => {
         }
       })
     }
-
+    
     const evolutionPokemonData = await axios.get(`https://pokeapi.co/api/v2/pokemon/${evolvePokemon}`)
-
+    
     const eData = evolutionPokemonData.data
-
+    
     const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${evolvePokemon}`)
-
+    
     const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
 
+    
     let evolves = false
     let evolvesTo = []
 
-    if (evolutionChainData.data.chain.species.name === foundPokemon.data.name){
+
+
+    if (evolutionChainData.data.chain.species.name === eData.name){
 
       if (evolutionChainData.data.chain.evolves_to.length > 1) {
 
@@ -346,8 +353,9 @@ const evolvePokemon = async (req, res) => {
         })
 
       } else {
-        
+        console.log('hello')
         if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item !== null) {
+          console.log('ITEM!')
           evolves = true
           evolvesTo.push({
             name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
@@ -357,6 +365,7 @@ const evolvePokemon = async (req, res) => {
           })
         } 
         else if (evolutionChainData.data.chain.evolves_to.length) {
+          console.log('NO ITEM')
           evolves = true
           evolvesTo.push({
             name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
@@ -367,7 +376,8 @@ const evolvePokemon = async (req, res) => {
         }
       }
 
-    } else if (evolutionChainData.data.chain.evolves_to[0].species.name === foundPokemon.data.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
+    } else if (evolutionChainData.data.chain.evolves_to[0].species.name === eData.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
+      console.log('SECOND EVOLUTION TO THIRD')
       if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item !== null) {
         evolves = true
         evolvesTo.push(
@@ -379,6 +389,7 @@ const evolvePokemon = async (req, res) => {
         }
         ) 
       } else {
+        console.log('THIRD TO FOURTH?')
         evolves = true
         evolvesTo.push({
           name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
@@ -388,9 +399,13 @@ const evolvePokemon = async (req, res) => {
       }
     }
 
+
+
     let evolveStats = []
     let hp, attack, spAttack, defense, spDefense, speed
     const pokemonLevel = pokemon.level
+
+
 
     eData.stats.forEach(eStat => {
       pokemon.stats.forEach(stat => {
@@ -437,6 +452,7 @@ const evolvePokemon = async (req, res) => {
       )
     })
 
+
     let typeSet = []
 
     eData.types.forEach(type => {
@@ -448,12 +464,18 @@ const evolvePokemon = async (req, res) => {
 
     let growthRate = speciesData.data.growth_rate.name
 
+    const name = eData.name
+    const pokedexNum = eData.id
+    const spriteFront = eData.sprites.front_default
+    const spriteBack = eData.sprites.back_default
+
+
     const evolutionForm = {
-      name: eData.name,
-      pokedexNum: eData.id,
+      name: name,
+      pokedexNum: pokedexNum,
       types: typeSet,
-      spriteFront: eData.sprites.front_default,
-      spriteBack: eData.sprites.back_default,
+      spriteFront: spriteFront,
+      spriteBack: spriteBack,
       evolves: evolves,
       evolvesTo: evolvesTo,
       stats: evolveStats,
@@ -467,12 +489,15 @@ const evolvePokemon = async (req, res) => {
       speed: speed
     }
 
-    const evolvedPokemon = Pokemon.findByIdAndUpdate(
+    
+    const evolvedPokemon = await Pokemon.findByIdAndUpdate(
       req.params.id,
       evolutionForm,
       { new: true }
-    ).populate('owner')
+      ).populate('owner')
 
+      
+      // console.log('TESTING HERE', evolvedPokemon)
     res.status(200).json(evolvedPokemon)
   } catch (error) {
     console.log(error)

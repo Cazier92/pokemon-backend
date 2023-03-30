@@ -29,7 +29,13 @@ const generatePokemon = async (req, res) => {
     const pokemonExists = await Pokemon.findOne({pokedexNum: req.params.num})
 
     if (pokemonExists) {
-      const pokemonLevel = req.params.level
+      let pokemonLevel
+  
+      if (!Number(req.params.level) || Number(req.params.level) > 100 || Number(req.params.level) < 1) {
+        pokemonLevel = 5
+      } else {
+        pokemonLevel = Number(req.params.level)
+      }
       let stats = []
   
       let hp, attack, spAttack, defense, spDefense, speed
@@ -135,6 +141,7 @@ const generatePokemon = async (req, res) => {
       let currentExp
   
       let nextLevelExp
+
   
       if (growthRate === 'fast') {
         currentExp = 4*(pokemonLevel**3)
@@ -150,7 +157,7 @@ const generatePokemon = async (req, res) => {
       } 
       else if (growthRate === 'medium-slow') {
         currentExp = ((6/5) * pokemonLevel**3) - (15 * pokemonLevel ** 2) + (100 * pokemonLevel) - 140
-        nextLevelExp = ((6/5) * (pokemonLevel + 1)**3) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140
+        nextLevelExp = ((6/5) * ((pokemonLevel + 1)**3)) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140
       } 
       else if (growthRate === 'fluctuating') {
         if (pokemonLevel + 1 < 15) {
@@ -182,6 +189,7 @@ const generatePokemon = async (req, res) => {
   
       currentExp = Math.floor(currentExp)
       nextLevelExp = Math.floor(nextLevelExp)
+
   
       if (pokemonLevel === 100) {
         nextLevelExp = NaN
@@ -468,6 +476,8 @@ const generatePokemon = async (req, res) => {
       let currentExp
   
       let nextLevelExp
+
+      console.log(((6/5) * (pokemonLevel + 1)**3) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140)
   
       if (growthRate === 'fast') {
         currentExp = 4*(pokemonLevel**3)
@@ -515,6 +525,7 @@ const generatePokemon = async (req, res) => {
   
       currentExp = Math.floor(currentExp)
       nextLevelExp = Math.floor(nextLevelExp)
+
   
       if (pokemonLevel === 100) {
         nextLevelExp = NaN
