@@ -1,15 +1,26 @@
 import { Pokemon } from '../models/pokemon.js'
-import axios from 'axios';
+import axios from 'axios'
+import * as algorithms from '../data/algorithms.js'
 
 const create = async (req, res) => {
   try {
-    const pokemon = await Pokemon.create(req.body);
-    res.status(201).json(pokemon);
+    const pokemon = await Pokemon.create(req.body)
+    res.status(201).json(pokemon)
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.log(error)
+    res.status(500).json(error)
   }
-};
+}
+
+const show = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.findById(req.params.id)
+    res.status(200).json(pokemon)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
 
 const updatePokemon = async (req, res) => {
   try {
@@ -20,8 +31,122 @@ const updatePokemon = async (req, res) => {
     ).populate('owner')
     res.status(200).json(pokemon)
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const expGain = async (req, res) => {
+  try {
+    const faintedPokemon = req.body.faintedPokemon
+    const pokemon = await Pokemon.findById(req.params.id)
+    const exp = req.body.exp
+    const winner = req.body.winner
+
+    let effortPointTotal = pokemon.effortPointTotal
+
+    let effortGains = []
+
+    let newStats = []
+
+    const newExp = exp + pokemon.currentExp
+
+
+
+    if (`${pokemon._id}` === winner) {
+      faintedPokemon.stats.forEach(stat => {
+        if (stat.effort > 0) {
+          effortGains.push(stat)
+        }
+      })
+  
+      if (effortPointTotal < 510) {
+        pokemon.stats.forEach(stat => {
+          if (stat.effortPoints < 255) {
+            effortGains.forEach(gain => {
+              if (gain.name === stat.name) {
+                if (stat.effortPoints + gain.effort <= 255 && effortPointTotal + gain.effort <= 510) {
+                  newStats.push({
+                    name: stat.name,
+                    baseStat: stat.baseStat,
+                    effort: stat.effort,
+                    iV: stat.iV,
+                    effortPoints: (stat.effortPoints + gain.effort)
+                  })
+                  effortPointTotal = (effortPointTotal + gain.effort)
+                } else if (stat.effortPoints + gain.effort > 255 && effortPointTotal + gain.effort <= 510 && stat.effortPoints < 255) {
+                  newStats.push({
+                    name: stat.name,
+                    baseStat: stat.baseStat,
+                    effort: stat.effort,
+                    iV: stat.iV,
+                    effortPoints: 255
+                  })
+                  effortPointTotal = (effortPointTotal + gain.effort)
+                } else if (stat.effortPoints + gain.effort <= 255 && effortPointTotal + gain.effort > 510 && stat.effortPoints < 255) {
+                  const difference = 510 - effortPointTotal
+                  newStats.push({
+                    name: stat.name,
+                    baseStat: stat.baseStat,
+                    effort: stat.effort,
+                    iV: stat.iV,
+                    effortPoints: (stat.effortPoints + difference)
+                  })
+                  effortPointTotal = 510
+                } else if (stat.effortPoints + gain.effort > 255 && effortPointTotal + gain.effort > 510 && stat.effortPoints < 255) {
+                  newStats.push({
+                    name: stat.name,
+                    baseStat: stat.baseStat,
+                    effort: stat.effort,
+                    iV: stat.iV,
+                    effortPoints: 255
+                  })
+                  effortPointTotal = 510
+                }
+              }
+            })
+          } else {
+            newStats.push(stat)
+          }
+        })
+  
+      } else {
+        newStats = pokemon.stats
+      }
+
+    } else {
+      newStats = pokemon.stats
+    }
+
+    let percentToNextLevel
+
+    let pokemonLevel = pokemon.level
+    let levelBaseExp = pokemon.levelBaseExp
+    let nextLevelExp = pokemon.nextLevelExp
+  
+    if (pokemonLevel < 100 && newExp > levelBaseExp) {
+      percentToNextLevel = (nextLevelExp - (newExp))/(nextLevelExp - levelBaseExp)
+    } else {
+      percentToNextLevel = 0
+    } 
+
+    const updateForm = {
+      stats: newStats,
+      currentExp: newExp,
+      effortPointTotal: effortPointTotal,
+      percentToNextLevel: percentToNextLevel
+    }
+
+    const updatedPokemon = await Pokemon.findByIdAndUpdate(
+      req.params.id,
+      updateForm,
+      {new: true}
+    ).populate('owner')
+
+    res.status(200).json(updatedPokemon)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
@@ -58,6 +183,72 @@ const levelUpPokemon = async (req, res) => {
 
       let currentHP = (pokemon.currentHP/ pokemon.totalHP) * hp
 
+      let levelBaseExp
+      let currentExp
+      let growthRate = pokemon.growthRate
+      let nextLevelExp
+  
+      if (growthRate === 'fast') {
+        currentExp = 4*(pokemonLevel**3)
+        nextLevelExp = 4*((pokemonLevel + 1)**3)
+      } 
+      else if (growthRate === 'medium-fast') {
+        currentExp = (pokemonLevel**3)
+        nextLevelExp = ((pokemonLevel + 1)**3)
+      } 
+      else if (growthRate === 'slow') {
+        currentExp = ((5 * (pokemonLevel **3)) / 4)
+        nextLevelExp = ((5 * ((pokemonLevel + 1) **3)) / 4)
+      } 
+      else if (growthRate === 'medium-slow') {
+        currentExp = ((6/5) * pokemonLevel**3) - (15 * pokemonLevel ** 2) + (100 * pokemonLevel) - 140
+        nextLevelExp = ((6/5) * (pokemonLevel + 1)**3) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140
+      } 
+      else if (growthRate === 'fluctuating') {
+        if (pokemonLevel + 1 < 15) {
+          currentExp = (((pokemonLevel **3) * (((pokemonLevel + 1)/3) +24)) /50)
+          nextLevelExp = ((((pokemonLevel + 1) **3) * ((((pokemonLevel + 1) + 1)/3) +24)) /50)
+        } else if (pokemonLevel + 1 <=15 && pokemonLevel + 1 < 36) {
+          currentExp = (((pokemonLevel ** 3)*(pokemonLevel + 14))/50)
+          nextLevelExp = ((((pokemonLevel + 1) ** 3)*((pokemonLevel + 1) + 14))/50)
+        } else {
+          currentExp = (((pokemonLevel **3) * ((pokemonLevel / 2) + 32))/50)
+          nextLevelExp = ((((pokemonLevel + 1) **3) * (((pokemonLevel + 1) / 2) + 32))/50)
+        }
+      }
+      else {
+        if (pokemonLevel + 1 < 50) {
+          currentExp = (pokemonLevel**3 * (100 - pokemonLevel) / 50)
+          nextLevelExp = ((pokemonLevel + 1)**3 * (100 - (pokemonLevel + 1)) / 50)
+        } else if (pokemonLevel + 1 <= 50 && pokemonLevel + 1 < 68) {
+          currentExp = (pokemonLevel**3 * (150 - pokemonLevel) / 100)
+          nextLevelExp = ((pokemonLevel + 1)**3 * (150 - (pokemonLevel + 1)) / 100)
+        } else if (pokemonLevel + 1 <= 68 && pokemonLevel + 1 < 98) {
+          currentExp = ((pokemonLevel**3 * (1911 - pokemonLevel*10) / 3) / 500)
+          nextLevelExp = (((pokemonLevel + 1)**3 * (1911 - (pokemonLevel + 1)*10) / 3) / 500)
+        } else {
+          currentExp = ((pokemonLevel**3 * (160 - pokemonLevel)) / 100)
+          nextLevelExp = (((pokemonLevel + 1)**3 * (160 - (pokemonLevel + 1))) / 100)
+        }
+      }
+  
+      currentExp = Math.floor(currentExp)
+      nextLevelExp = Math.floor(nextLevelExp)
+  
+      if (pokemonLevel === 100) {
+        nextLevelExp = NaN
+      }
+  
+      levelBaseExp = currentExp
+  
+      let percentToNextLevel
+  
+      if (pokemonLevel < 100 && pokemon.currentExp > levelBaseExp) {
+        percentToNextLevel = (nextLevelExp - (pokemon.currentExp))/(nextLevelExp - levelBaseExp)
+      } else {
+        percentToNextLevel = 0
+      } 
+
       LevelUpForm = {
         level: pokemonLevel,
         totalHp: hp,
@@ -67,6 +258,9 @@ const levelUpPokemon = async (req, res) => {
         defense: defense,
         spDefense: spDefense,
         speed: speed,
+        percentToNextLevel: percentToNextLevel,
+        nextLevelExp: nextLevelExp,
+        levelBaseExp: levelBaseExp,
       }
 
       const leveledUpPokemon = await Pokemon.findByIdAndUpdate(
@@ -74,14 +268,20 @@ const levelUpPokemon = async (req, res) => {
         LevelUpForm,
         { new: true }
       ).populate('owner')
+
+      // leveledUpPokemon.evolvesTo.forEach(evolution => {
+      //   if (evolution.trigger === 'level-up' && evolution.minLevel !== null && leveledUpPokemon.level >= evolution.minLevel) {
+          
+      //   }
+      // })
       
       res.status(200).json(leveledUpPokemon)
     } else {
       res.status(200).json(pokemon)
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
@@ -275,15 +475,17 @@ const evolvePokemon = async (req, res) => {
 
     res.status(200).json(evolvedPokemon)
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
 
 export { 
   create,
+  show,
   updatePokemon,
+  expGain,
   levelUpPokemon,
   evolvePokemon,
 }

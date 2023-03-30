@@ -64,20 +64,20 @@ function shakeCheck(count, b, name) {
   }
 }
 
-const bulbasaur = {
-  name: 'Bulbasaur',
-  totalHP: 148,
-  currentHP: 148,
-  captureRate: 65,
-  statusCondition: null
-}
+// const bulbasaur = {
+//   name: 'Bulbasaur',
+//   totalHP: 148,
+//   currentHP: 148,
+//   captureRate: 65,
+//   statusCondition: null
+// }
 
-const greatBall = {
-  name: 'Great Ball',
-  bonus: 1.5
-}
+// const greatBall = {
+//   name: 'Great Ball',
+//   bonus: 1.5
+// }
 
-catchPokemon(bulbasaur, greatBall)
+// catchPokemon(bulbasaur, greatBall)
 
 
 
@@ -96,34 +96,44 @@ catchPokemon(bulbasaur, greatBall)
 function expGainCalc(faintedPokemon, winner, participants) {
   let a, b, e, l, s, t
 
-  if (faintedPokemon.owner) {
-    a = 1.5
+  if (faintedPokemon.currentHP <= 0) {
+    if (faintedPokemon.owner) {
+      a = 1.5
+    } else {
+      a = 1
+    }
+  
+    b = faintedPokemon.baseExpYield
+  
+    if (winner.holdItem && winner.holdItem.name === 'Lucky Egg') {
+      e = 1.5
+    } else {
+      e = 1
+    }
+  
+    l = faintedPokemon.level
+  
+    s = participants.length
+  
+    if (winner.originalOwner === winner.owner) {
+      t = 1
+    } else {
+      t = 1.5
+    }
+  
+    const expGain = ((b * l) / 7) * (1 / s) * e * a * t
+  
+    return expGain
   } else {
-    a = 1
+    return 0
   }
 
-  b = faintedPokemon.baseExpYield
 
-  if (winner.holdItem && winner.holdItem.name === 'Lucky Egg') {
-    e = 1.5
-  } else {
-    e = 1
-  }
+}
 
-  l = faintedPokemon.level
-
-  s = participants.length
-
-  if (winner.originalOwner === winner.owner) {
-    t = 1
-  } else {
-    t = 1.5
-  }
-
-  const expGain = ((b * l) / 7) * (1 / s) * e * a * t
-
-  return expGain
-
+export {
+  catchPokemon,
+  expGainCalc,
 }
 
 
