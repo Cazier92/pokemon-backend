@@ -3,10 +3,22 @@ import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
 const itemSchema = new Schema({
-  name: String,
-  photo: String,
-  party: [{type: Schema.Types.ObjectId, ref: 'Pokemon', max: 6 }],
-  pokemonPC: [{type: Schema.Types.ObjectId, ref: 'Pokemon'}],
+  name: { type: String, required: true },
+  type: {
+    type: String,
+    enum: [
+      'ball', 'key', 'machine', 'medicine', 'holdItem'
+    ],
+    required: true,
+  },
+  bonus: Number,
+  value: Number,
+  affects: [{
+    type: String,
+    enum: [
+      'hp', 'attack', 'spAttack', 'defense', 'spDefense', 'speed', 'level', 'status'
+    ]
+  }]
 },{
   timestamps: true,
 })

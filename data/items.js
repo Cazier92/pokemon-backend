@@ -39,3 +39,5 @@ const medicine = [
     result: 'totalHP'
   }
 ]
+
+//& types: ball, medicine, machine, hold, evolution, key

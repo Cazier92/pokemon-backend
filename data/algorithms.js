@@ -131,6 +131,29 @@ function expGainCalc(faintedPokemon, winner, participants) {
 
 }
 
+//! Damage algorithm:
+/*
+& Damage = ((((((2* Level)/5)+2)* Power * (A/D)) /50) * Burn * Screen * Weather * FF +2 ) * Critical * DoubleDmg * STAB * Type * random
+
+& Where:
+& Level = level of attacking Pokemon
+& A = (if physical attack): Attack Stat, (if special Attack): spAttack
+& D = Defense Stat/spDefense Stat of target Pokemon
+& Power = power of move
+& Burn = (if attackType === physical && status === 'burn'): 0.5, else 1
+& Screen = (if opponent reflect/light screen && attack phys/spec): .5, else 1
+& Weather = (if rain): (if water): 1.5 (if fire || solarbeam): .5, (if sun): (if fire): 1.5, (if water): .5, else 1
+& Critical = 2 for critical hit, else 1
+& DoubleDmg: Move Based, make 1, modify later.
+& STAB: Same Type Attack Bonus
+& Type: type effectiveness: .25, .5, 1, 2, 4
+& random: number between .85 & 1
+*/
+
+function damage(attacker, target, move) {
+
+}
+
 export {
   catchPokemon,
   expGainCalc,

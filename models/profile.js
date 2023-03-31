@@ -7,6 +7,7 @@ const profileSchema = new Schema({
   photo: String,
   party: [{type: Schema.Types.ObjectId, ref: 'Pokemon', max: 6 }],
   pokemonPC: [{type: Schema.Types.ObjectId, ref: 'Pokemon'}],
+  pack: { type: Schema.Types.ObjectId, ref: 'Pack' },
 },{
   timestamps: true,
 })

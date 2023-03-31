@@ -52,6 +52,10 @@ const updatePokemon = async (req, res) => {
   }
 }
 
+const catchPokemon = async (req, res) => {
+
+}
+
 const deletePokemon = async (req, res) => {
   try {
     const pokemon = await Pokemon.findById(req.params.id)
@@ -192,132 +196,136 @@ const levelUpPokemon = async (req, res) => {
   try {
     const pokemon = await Pokemon.findById(req.params.id)
 
-    if (pokemon.currentExp >= pokemon.nextLevelExp) {
-      let LevelUpForm
-      let hp, attack, spAttack, defense, spDefense, speed
-
-      const pokemonLevel = pokemon.level + 1
-
-      pokemon.stats.forEach(stat => {
-        if (stat.name === 'hp') {
-          hp = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
+    if (pokemon.level < 100) {
+      if (pokemon.currentExp >= pokemon.nextLevelExp) {
+        let LevelUpForm
+        let hp, attack, spAttack, defense, spDefense, speed
+  
+        const pokemonLevel = pokemon.level + 1
+  
+        pokemon.stats.forEach(stat => {
+          if (stat.name === 'hp') {
+            hp = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
+          } 
+          else if (stat.name === 'attack') {
+            attack = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+          }
+          else if (stat.name === 'defense') {
+            defense = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+          }
+          else if (stat.name === 'special-defense') {
+            spDefense = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+          }
+          else if (stat.name === 'special-attack') {
+            spAttack = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+          }
+          else if (stat.name === 'speed') {
+            speed = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+          }
+        })
+  
+        console.log('hp', hp)
+        console.log('currentHP', pokemon.currentHP)
+        console.log('totalHP', pokemon.totalHP)
+  
+        let currentHP = (pokemon.currentHP/ pokemon.totalHP) * hp
+  
+        let levelBaseExp
+        let currentExp
+        let growthRate = pokemon.growthRate
+        let nextLevelExp
+    
+        if (growthRate === 'fast') {
+          currentExp = 4*(pokemonLevel**3)
+          nextLevelExp = 4*((pokemonLevel + 1)**3)
         } 
-        else if (stat.name === 'attack') {
-          attack = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        else if (growthRate === 'medium-fast') {
+          currentExp = (pokemonLevel**3)
+          nextLevelExp = ((pokemonLevel + 1)**3)
+        } 
+        else if (growthRate === 'slow') {
+          currentExp = ((5 * (pokemonLevel **3)) / 4)
+          nextLevelExp = ((5 * ((pokemonLevel + 1) **3)) / 4)
+        } 
+        else if (growthRate === 'medium-slow') {
+          currentExp = ((6/5) * pokemonLevel**3) - (15 * pokemonLevel ** 2) + (100 * pokemonLevel) - 140
+          nextLevelExp = ((6/5) * (pokemonLevel + 1)**3) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140
+        } 
+        else if (growthRate === 'fluctuating') {
+          if (pokemonLevel + 1 < 15) {
+            currentExp = (((pokemonLevel **3) * (((pokemonLevel + 1)/3) +24)) /50)
+            nextLevelExp = ((((pokemonLevel + 1) **3) * ((((pokemonLevel + 1) + 1)/3) +24)) /50)
+          } else if (pokemonLevel + 1 <=15 && pokemonLevel + 1 < 36) {
+            currentExp = (((pokemonLevel ** 3)*(pokemonLevel + 14))/50)
+            nextLevelExp = ((((pokemonLevel + 1) ** 3)*((pokemonLevel + 1) + 14))/50)
+          } else {
+            currentExp = (((pokemonLevel **3) * ((pokemonLevel / 2) + 32))/50)
+            nextLevelExp = ((((pokemonLevel + 1) **3) * (((pokemonLevel + 1) / 2) + 32))/50)
+          }
         }
-        else if (stat.name === 'defense') {
-          defense = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+        else {
+          if (pokemonLevel + 1 < 50) {
+            currentExp = (pokemonLevel**3 * (100 - pokemonLevel) / 50)
+            nextLevelExp = ((pokemonLevel + 1)**3 * (100 - (pokemonLevel + 1)) / 50)
+          } else if (pokemonLevel + 1 <= 50 && pokemonLevel + 1 < 68) {
+            currentExp = (pokemonLevel**3 * (150 - pokemonLevel) / 100)
+            nextLevelExp = ((pokemonLevel + 1)**3 * (150 - (pokemonLevel + 1)) / 100)
+          } else if (pokemonLevel + 1 <= 68 && pokemonLevel + 1 < 98) {
+            currentExp = ((pokemonLevel**3 * (1911 - pokemonLevel*10) / 3) / 500)
+            nextLevelExp = (((pokemonLevel + 1)**3 * (1911 - (pokemonLevel + 1)*10) / 3) / 500)
+          } else {
+            currentExp = ((pokemonLevel**3 * (160 - pokemonLevel)) / 100)
+            nextLevelExp = (((pokemonLevel + 1)**3 * (160 - (pokemonLevel + 1))) / 100)
+          }
         }
-        else if (stat.name === 'special-defense') {
-          spDefense = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+    
+        currentExp = Math.floor(currentExp)
+        nextLevelExp = Math.floor(nextLevelExp)
+    
+        if (pokemonLevel === 100) {
+          nextLevelExp = NaN
         }
-        else if (stat.name === 'special-attack') {
-          spAttack = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-        }
-        else if (stat.name === 'speed') {
-          speed = ((((2 * stat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-        }
-      })
-
-      console.log('hp', hp)
-      console.log('currentHP', pokemon.currentHP)
-      console.log('totalHP', pokemon.totalHP)
-
-      let currentHP = (pokemon.currentHP/ pokemon.totalHP) * hp
-
-      let levelBaseExp
-      let currentExp
-      let growthRate = pokemon.growthRate
-      let nextLevelExp
-  
-      if (growthRate === 'fast') {
-        currentExp = 4*(pokemonLevel**3)
-        nextLevelExp = 4*((pokemonLevel + 1)**3)
-      } 
-      else if (growthRate === 'medium-fast') {
-        currentExp = (pokemonLevel**3)
-        nextLevelExp = ((pokemonLevel + 1)**3)
-      } 
-      else if (growthRate === 'slow') {
-        currentExp = ((5 * (pokemonLevel **3)) / 4)
-        nextLevelExp = ((5 * ((pokemonLevel + 1) **3)) / 4)
-      } 
-      else if (growthRate === 'medium-slow') {
-        currentExp = ((6/5) * pokemonLevel**3) - (15 * pokemonLevel ** 2) + (100 * pokemonLevel) - 140
-        nextLevelExp = ((6/5) * (pokemonLevel + 1)**3) - (15 * (pokemonLevel + 1) ** 2) + (100 * (pokemonLevel + 1)) - 140
-      } 
-      else if (growthRate === 'fluctuating') {
-        if (pokemonLevel + 1 < 15) {
-          currentExp = (((pokemonLevel **3) * (((pokemonLevel + 1)/3) +24)) /50)
-          nextLevelExp = ((((pokemonLevel + 1) **3) * ((((pokemonLevel + 1) + 1)/3) +24)) /50)
-        } else if (pokemonLevel + 1 <=15 && pokemonLevel + 1 < 36) {
-          currentExp = (((pokemonLevel ** 3)*(pokemonLevel + 14))/50)
-          nextLevelExp = ((((pokemonLevel + 1) ** 3)*((pokemonLevel + 1) + 14))/50)
+    
+        levelBaseExp = currentExp
+    
+        let percentToNextLevel
+    
+        if (pokemonLevel < 100 && pokemon.currentExp > levelBaseExp) {
+          percentToNextLevel = (nextLevelExp - (pokemon.currentExp))/(nextLevelExp - levelBaseExp)
         } else {
-          currentExp = (((pokemonLevel **3) * ((pokemonLevel / 2) + 32))/50)
-          nextLevelExp = ((((pokemonLevel + 1) **3) * (((pokemonLevel + 1) / 2) + 32))/50)
+          percentToNextLevel = 0
+        } 
+  
+        const levelUpForm = {
+          level: pokemonLevel,
+          totalHp: hp,
+          currentHP: currentHP,
+          attack: attack,
+          spAttack: spAttack,
+          defense: defense,
+          spDefense: spDefense,
+          speed: speed,
+          percentToNextLevel: percentToNextLevel,
+          nextLevelExp: nextLevelExp,
+          levelBaseExp: levelBaseExp,
         }
-      }
-      else {
-        if (pokemonLevel + 1 < 50) {
-          currentExp = (pokemonLevel**3 * (100 - pokemonLevel) / 50)
-          nextLevelExp = ((pokemonLevel + 1)**3 * (100 - (pokemonLevel + 1)) / 50)
-        } else if (pokemonLevel + 1 <= 50 && pokemonLevel + 1 < 68) {
-          currentExp = (pokemonLevel**3 * (150 - pokemonLevel) / 100)
-          nextLevelExp = ((pokemonLevel + 1)**3 * (150 - (pokemonLevel + 1)) / 100)
-        } else if (pokemonLevel + 1 <= 68 && pokemonLevel + 1 < 98) {
-          currentExp = ((pokemonLevel**3 * (1911 - pokemonLevel*10) / 3) / 500)
-          nextLevelExp = (((pokemonLevel + 1)**3 * (1911 - (pokemonLevel + 1)*10) / 3) / 500)
-        } else {
-          currentExp = ((pokemonLevel**3 * (160 - pokemonLevel)) / 100)
-          nextLevelExp = (((pokemonLevel + 1)**3 * (160 - (pokemonLevel + 1))) / 100)
-        }
-      }
   
-      currentExp = Math.floor(currentExp)
-      nextLevelExp = Math.floor(nextLevelExp)
+        const leveledUpPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.id,
+          levelUpForm,
+          { new: true }
+        ).populate('owner')
   
-      if (pokemonLevel === 100) {
-        nextLevelExp = NaN
-      }
-  
-      levelBaseExp = currentExp
-  
-      let percentToNextLevel
-  
-      if (pokemonLevel < 100 && pokemon.currentExp > levelBaseExp) {
-        percentToNextLevel = (nextLevelExp - (pokemon.currentExp))/(nextLevelExp - levelBaseExp)
+        // leveledUpPokemon.evolvesTo.forEach(evolution => {
+        //   if (evolution.trigger === 'level-up' && evolution.minLevel !== null && leveledUpPokemon.level >= evolution.minLevel) {
+            
+        //   }
+        // })
+        
+        res.status(200).json(leveledUpPokemon)
       } else {
-        percentToNextLevel = 0
-      } 
-
-      const levelUpForm = {
-        level: pokemonLevel,
-        totalHp: hp,
-        currentHP: currentHP,
-        attack: attack,
-        spAttack: spAttack,
-        defense: defense,
-        spDefense: spDefense,
-        speed: speed,
-        percentToNextLevel: percentToNextLevel,
-        nextLevelExp: nextLevelExp,
-        levelBaseExp: levelBaseExp,
+        res.status(200).json(pokemon)
       }
-
-      const leveledUpPokemon = await Pokemon.findByIdAndUpdate(
-        req.params.id,
-        levelUpForm,
-        { new: true }
-      ).populate('owner')
-
-      // leveledUpPokemon.evolvesTo.forEach(evolution => {
-      //   if (evolution.trigger === 'level-up' && evolution.minLevel !== null && leveledUpPokemon.level >= evolution.minLevel) {
-          
-      //   }
-      // })
-      
-      res.status(200).json(leveledUpPokemon)
     } else {
       res.status(200).json(pokemon)
     }
@@ -355,195 +363,282 @@ const evolvePokemon = async (req, res) => {
     }
 
     if (evolvePokemon) {
-      const evolutionPokemonData = await axios.get(`https://pokeapi.co/api/v2/pokemon/${evolvePokemon}`)
-      
-      const eData = evolutionPokemonData.data
-      
-      const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${evolvePokemon}`)
-      
-      const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
-  
-      
-      let evolves = false
-      let evolvesTo = []
-  
-  
-  
-      if (evolutionChainData.data.chain.species.name === eData.name){
-  
-        if (evolutionChainData.data.chain.evolves_to.length > 1) {
-  
-          evolutionChainData.data.chain.evolves_to.forEach(evolution => {
-  
-            evolution.evolution_details.forEach(evolutionType => {
-              if (evolutionType.item !== null) {
-                evolves = true
-                evolvesTo.push({
-                  name: `${evolution.species.name}`,
-                  trigger: evolutionType.trigger.name,
-                  minLevel: evolutionType.min_level,
-                  item: `${evolutionType.item.name}`
-                })
-  
-              } else {
-                evolves = true
-                evolvesTo.push({
-                  name: `${evolution.species.name}`,
-                  trigger: evolutionType.trigger.name,
-                  minLevel: evolutionType.min_level,
-                  item: null
-                })
-  
-              }
-            })
+      const dbPokemon = await Pokemon.findOne({ name: evolvePokemon })
+
+      if (dbPokemon) {
+
+        let evolveStats = []
+
+        pokemon.stats.forEach(stat => {
+          dbPokemon.stats.forEach(dbStat => {
+            if (dbStat.name === stat.name) {
+              evolveStats.push({
+                name: stat.name,
+                baseStat: dbPokemon.baseStat,
+                effort: dbPokemon.effort,
+                iV: stat.iV,
+                effortPoints: stat.effortPoints
+              })
+            }
           })
-  
-        } else {
-          console.log('hello')
-          if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item !== null) {
-            console.log('ITEM!')
-            evolves = true
-            evolvesTo.push({
-              name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
-              trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
-              minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
-              item: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item.name}`
-            })
-          } 
-          else if (evolutionChainData.data.chain.evolves_to.length) {
-            console.log('NO ITEM')
-            evolves = true
-            evolvesTo.push({
-              name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
-              trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
-              minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
-              item: null
-            })
-          }
+        })
+
+        let hp, attack, defense, spAttack, spDefense, speed
+        const pokemonLevel = pokemon.level
+
+        dbPokemon.stats.forEach(dbStat => {
+          pokemon.stats.forEach(stat => {
+            if (dbStat.stat.name === stat.name) {
+              evolveStats.push({
+                name: stat.name,
+                baseStat: dbPokemon.baseStat,
+                effort: dbPokemon.effort,
+                iV: stat.iV,
+                effortPoints: stat.effortPoints
+              })
+              if (dbStat.name === 'hp') {
+                hp = ((((2 * dbStat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
+              } 
+              else if (dbStat.name === 'attack') {
+                attack = ((((2 * dbStat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (dbStat.name === 'defense') {
+                defense = ((((2 * dbStat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (dbStat.name === 'special-defense') {
+                spDefense = ((((2 * dbStat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (dbStat.name === 'special-attack') {
+                spAttack = ((((2 * dbStat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (dbStat.name === 'speed') {
+                speed = ((((2 * dbStat.baseStat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+            }
+          })
+        })
+
+        const evolutionForm = {
+          name: dbPokemon.name,
+          pokedexNum: dbPokemon.pokedexNum,
+          types: dbPokemon.types,
+          spriteFront: dbPokemon.spriteFront,
+          spriteBack: dbPokemon.spriteBack,
+          evolves: dbPokemon.evolves,
+          evolvesTo: dbPokemon.evolvesTo,
+          stats: evolveStats,
+          potentialMoves: dbPokemon.potentialMoves,
+          growthRate: dbPokemon.growthRate,
+          totalHP: hp,
+          attack: attack,
+          defense: defense,
+          spAttack: spAttack,
+          spDefense: spDefense,
+          speed: speed
         }
-  
-      } else if (evolutionChainData.data.chain.evolves_to[0].species.name === eData.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
-        console.log('SECOND EVOLUTION TO THIRD')
-        if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item !== null) {
-          evolves = true
-          evolvesTo.push(
-            {
+    
+        
+        const evolvedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.id,
+          evolutionForm,
+          { new: true }
+          ).populate('owner')
+    
+          
+        res.status(201).json(evolvedPokemon)
+      } else {
+
+        const evolutionPokemonData = await axios.get(`https://pokeapi.co/api/v2/pokemon/${evolvePokemon}`)
+        
+        const eData = evolutionPokemonData.data
+        
+        const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${evolvePokemon}`)
+        
+        const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
+    
+        
+        let evolves = false
+        let evolvesTo = []
+    
+    
+    
+        if (evolutionChainData.data.chain.species.name === eData.name){
+    
+          if (evolutionChainData.data.chain.evolves_to.length > 1) {
+    
+            evolutionChainData.data.chain.evolves_to.forEach(evolution => {
+    
+              evolution.evolution_details.forEach(evolutionType => {
+                if (evolutionType.item !== null) {
+                  evolves = true
+                  evolvesTo.push({
+                    name: `${evolution.species.name}`,
+                    trigger: evolutionType.trigger.name,
+                    minLevel: evolutionType.min_level,
+                    item: `${evolutionType.item.name}`
+                  })
+    
+                } else {
+                  evolves = true
+                  evolvesTo.push({
+                    name: `${evolution.species.name}`,
+                    trigger: evolutionType.trigger.name,
+                    minLevel: evolutionType.min_level,
+                    item: null
+                  })
+    
+                }
+              })
+            })
+    
+          } else {
+            console.log('hello')
+            if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item !== null) {
+              console.log('ITEM!')
+              evolves = true
+              evolvesTo.push({
+                name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+                trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+                minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+                item: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item.name}`
+              })
+            } 
+            else if (evolutionChainData.data.chain.evolves_to.length) {
+              console.log('NO ITEM')
+              evolves = true
+              evolvesTo.push({
+                name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+                trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+                minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+                item: null
+              })
+            }
+          }
+    
+        } else if (evolutionChainData.data.chain.evolves_to[0].species.name === eData.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
+          console.log('SECOND EVOLUTION TO THIRD')
+          if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item !== null) {
+            evolves = true
+            evolvesTo.push(
+              {
+                name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
+                trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
+                minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
+                item: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name}`
+            }
+            ) 
+          } else {
+            console.log('THIRD TO FOURTH?')
+            evolves = true
+            evolvesTo.push({
               name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
               trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
               minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
-              item: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name}`
+          })
           }
-          ) 
-        } else {
-          console.log('THIRD TO FOURTH?')
-          evolves = true
-          evolvesTo.push({
-            name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
-            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
-            minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
-        })
         }
-      }
-  
-  
-  
-      let evolveStats = []
-      let hp, attack, spAttack, defense, spDefense, speed
-      const pokemonLevel = pokemon.level
-  
-  
-  
-      eData.stats.forEach(eStat => {
-        pokemon.stats.forEach(stat => {
-          if (eStat.stat.name === stat.name) {
-            evolveStats.push({
-              name: stat.name,
-              baseStat: eStat.base_stat,
-              effort: eStat.effort,
-              iV: stat.iV,
-              effortPoints: stat.effortPoints
-            })
-            if (eStat.name === 'hp') {
-              hp = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
-            } 
-            else if (eStat.name === 'attack') {
-              attack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+    
+    
+    
+        let evolveStats = []
+        let hp, attack, spAttack, defense, spDefense, speed
+        const pokemonLevel = pokemon.level
+    
+    
+    
+        eData.stats.forEach(eStat => {
+          pokemon.stats.forEach(stat => {
+            if (eStat.stat.name === stat.name) {
+              evolveStats.push({
+                name: stat.name,
+                baseStat: eStat.base_stat,
+                effort: eStat.effort,
+                iV: stat.iV,
+                effortPoints: stat.effortPoints
+              })
+              if (eStat.name === 'hp') {
+                hp = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
+              } 
+              else if (eStat.name === 'attack') {
+                attack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (eStat.name === 'defense') {
+                defense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (eStat.name === 'special-defense') {
+                spDefense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (eStat.name === 'special-attack') {
+                spAttack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
+              else if (eStat.name === 'speed') {
+                speed = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+              }
             }
-            else if (eStat.name === 'defense') {
-              defense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-            }
-            else if (eStat.name === 'special-defense') {
-              spDefense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-            }
-            else if (eStat.name === 'special-attack') {
-              spAttack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-            }
-            else if (eStat.name === 'speed') {
-              speed = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-            }
-          }
+          })
         })
-      })
-  
-      let potMoves = []
-  
-      eData.moves.forEach(move => {
-        potMoves.push(
-          {
-            name: `${move.move.name}`,
-            url: `${move.move.url}`,
-            level: move.version_group_details[0].level_learned_at,
-            method: `${move.version_group_details[0].move_learn_method.name}`,
-          }
-        )
-      })
-  
-  
-      let typeSet = []
-  
-      eData.types.forEach(type => {
-        typeSet.push({
-          slot: type.slot,
-          name: `${type.type.name}`
+    
+        let potMoves = []
+    
+        eData.moves.forEach(move => {
+          potMoves.push(
+            {
+              name: `${move.move.name}`,
+              url: `${move.move.url}`,
+              level: move.version_group_details[0].level_learned_at,
+              method: `${move.version_group_details[0].move_learn_method.name}`,
+            }
+          )
         })
-      })
-  
-      let growthRate = speciesData.data.growth_rate.name
-  
-      const name = eData.name
-      const pokedexNum = eData.id
-      const spriteFront = eData.sprites.front_default
-      const spriteBack = eData.sprites.back_default
-  
-  
-      const evolutionForm = {
-        name: name,
-        pokedexNum: pokedexNum,
-        types: typeSet,
-        spriteFront: spriteFront,
-        spriteBack: spriteBack,
-        evolves: evolves,
-        evolvesTo: evolvesTo,
-        stats: evolveStats,
-        potentialMoves: potMoves,
-        growthRate: growthRate,
-        totalHP: hp,
-        attack: attack,
-        defense: defense,
-        spAttack: spAttack,
-        spDefense: spDefense,
-        speed: speed
-      }
-  
-      
-      const evolvedPokemon = await Pokemon.findByIdAndUpdate(
-        req.params.id,
-        evolutionForm,
-        { new: true }
-        ).populate('owner')
-  
+    
+    
+        let typeSet = []
+    
+        eData.types.forEach(type => {
+          typeSet.push({
+            slot: type.slot,
+            name: `${type.type.name}`
+          })
+        })
+    
+        let growthRate = speciesData.data.growth_rate.name
+    
+        const name = eData.name
+        const pokedexNum = eData.id
+        const spriteFront = eData.sprites.front_default
+        const spriteBack = eData.sprites.back_default
+    
+    
+        const evolutionForm = {
+          name: name,
+          pokedexNum: pokedexNum,
+          types: typeSet,
+          spriteFront: spriteFront,
+          spriteBack: spriteBack,
+          evolves: evolves,
+          evolvesTo: evolvesTo,
+          stats: evolveStats,
+          potentialMoves: potMoves,
+          growthRate: growthRate,
+          totalHP: hp,
+          attack: attack,
+          defense: defense,
+          spAttack: spAttack,
+          spDefense: spDefense,
+          speed: speed
+        }
+    
         
-      res.status(201).json(evolvedPokemon)
+        const evolvedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.id,
+          evolutionForm,
+          { new: true }
+          ).populate('owner')
+    
+          
+        res.status(201).json(evolvedPokemon)
+      }
+
 
     }
 

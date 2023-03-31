@@ -27,13 +27,13 @@ const potentialMoveSchema = new Schema({
 const moveSchema = new Schema({
   name: {type: String, required: true},
   type: {type: String, required: true},
-  accuracy: {type: Number || null},
+  accuracy: {type: Number | null},
   effect: {type: String, required: true},
-  effectChance: {type: Number || null},
+  effectChance: {type: Number | null},
   damageClass: {type: String, required: true},
   totalPP: {type: Number, required: true},
   currentPP: {type: Number, required: true},
-  power: {type: Number || null},
+  power: {type: Number | null},
   priority: {type: Number, required: true},
 })
 
@@ -48,9 +48,9 @@ const statSchema = new Schema({
 const evolutionSchema = new Schema({
   name: String,
   trigger: String,
-  minLevel: Number || null,
-  item: String || null,
-  heldItem: String || null,
+  minLevel: Number | null,
+  item: String | null,
+  heldItem: String | null
 })
 
 const pokemonSchema = new Schema({
@@ -69,11 +69,6 @@ const pokemonSchema = new Schema({
     max: 4, 
     required: true 
   }],
-  // moveSet: {type: [moveSchema], 
-  //   required: true,
-  //   min: 1,
-  //   max: 4
-  // },
   spriteFront: String,
   spriteBack: String,
   stats: [statSchema],
@@ -87,15 +82,15 @@ const pokemonSchema = new Schema({
   spDefense: Number,
   speed: Number,
   effortPointTotal: {type: Number, min: 0, max: 510},
-  statusCondition: String || null,
+  statusCondition: String | null,
   captureRate: Number,
   growthRate: String,
   levelBaseExp: Number,
   currentExp: Number,
   percentToNextLevel: Number,
-  nextLevelExp: Number || NaN,
+  nextLevelExp: Number | NaN,
   baseExpYield: Number,
-  holdItem: Object || null,
+  holdItem: Object | null,
 },{
   timestamps: true,
 })
