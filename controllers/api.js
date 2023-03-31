@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Pokemon } from "../models/pokemon.js";
+import { Move } from "../models/move.js";
 
 
 const findPokemon = async (req, res) => {
@@ -24,11 +25,11 @@ const findMove = async (req, res) => {
 
 const generatePokemon = async (req, res) => {
   try {
-
-
     const pokemonExists = await Pokemon.findOne({pokedexNum: req.params.num})
 
+    
     if (pokemonExists) {
+      console.log('Pokemon Exists')
       let pokemonLevel
   
       if (!Number(req.params.level) || Number(req.params.level) > 100 || Number(req.params.level) < 1) {
@@ -94,47 +95,93 @@ const generatePokemon = async (req, res) => {
       }
   
       let moveSetData = []
+      // let dataBaseMoves = []
+      let moveSet = []
 
   
       if (preMoveSet[0]) {
-        const move0 = await axios.get(`${preMoveSet[0].url}`)
-        moveSetData.push(move0.data)
+        const dataBaseMove0 = await Move.findOne({ name: preMoveSet[0].name })
+        if (dataBaseMove0) {
+          console.log(dataBaseMove0)
+          moveSet.push(dataBaseMove0)
+        } else {
+          const move0 = await axios.get(`${preMoveSet[0].url}`)
+          moveSetData.push(move0.data)
+        }
       }
       if (preMoveSet[1]) {
-        const move1 = await axios.get(`${preMoveSet[1].url}`)
-        moveSetData.push(move1.data)
+        const dataBaseMove1 = await Move.findOne({ name: preMoveSet[1].name })
+        if (dataBaseMove1) {
+          console.log(dataBaseMove1)
+          moveSet.push(dataBaseMove1)
+        } else {
+          const move1 = await axios.get(`${preMoveSet[1].url}`)
+          moveSetData.push(move1.data)
+        }
       }
       if (preMoveSet[2]) {
-        const move2 = await axios.get(`${preMoveSet[2].url}`)
-        moveSetData.push(move2.data)
+        const dataBaseMove2 = await Move.findOne({ name: preMoveSet[2].name })
+        if (dataBaseMove2) {
+          console.log(dataBaseMove2)
+          moveSet.push(dataBaseMove2)
+        } else {
+          const move2 = await axios.get(`${preMoveSet[2].url}`)
+          moveSetData.push(move2.data)
+        }
       }
       if (preMoveSet[3]) {
-        const move3 = await axios.get(`${preMoveSet[3].url}`)
-        moveSetData.push(move3.data)
+        const dataBaseMove3 = await Move.findOne({ name: preMoveSet[3].name })
+        if (dataBaseMove3) {
+          console.log(dataBaseMove3)
+          moveSet.push(dataBaseMove3)
+        } else {
+          const move3 = await axios.get(`${preMoveSet[3].url}`)
+          moveSetData.push(move3.data)
+        }
+      }
+
+      for(let i = 0; i < moveSetData.length; i++) {
+        let effect = moveSetData[i].effect_entries[0].short_effect
+        if (effect.includes('$')) {
+          effect = (effect.replace('$effect_chance', `${moveSetData[i].effect_chance}`))
+        }
+        const newMove = await Move.create({
+          name: `${moveSetData[i].name}`,
+          type: `${moveSetData[i].type.name}`,
+          accuracy: moveSetData[i].accuracy,
+          effect: `${effect}`,
+          effectChance: moveSetData[i].effect_chance,
+          damageClass: `${moveSetData[i].damage_class.name}`,
+          totalPP: moveSetData[i].pp,
+          currentPP: moveSetData[i].pp,
+          power: moveSetData[i].power,
+          priority: moveSetData[i].priority,
+        })
+        moveSet.push(newMove)
       }
       
-      let moveSet = []
   
-      moveSetData.forEach(move => {
-        moveSet.push({
-          name: `${move.name}`,
-          type: `${move.type.name}`,
-          accuracy: move.accuracy,
-          effect: `${move.effect_entries[0].short_effect}`,
-          effectChance: move.effect_chance,
-          damageClass: `${move.damage_class.name}`,
-          totalPP: move.pp,
-          currentPP: move.pp,
-          power: move.power,
-          priority: move.priority,
-        })
-      })
+      // moveSetData.forEach(move => {
+      //   const newMove = await Move.create()
+      //   moveSet.push({
+      //     name: `${move.name}`,
+      //     type: `${move.type.name}`,
+      //     accuracy: move.accuracy,
+      //     effect: `${move.effect_entries[0].short_effect}`,
+      //     effectChance: move.effect_chance,
+      //     damageClass: `${move.damage_class.name}`,
+      //     totalPP: move.pp,
+      //     currentPP: move.pp,
+      //     power: move.power,
+      //     priority: move.priority,
+      //   })
+      // })
   
-      moveSet.forEach(move => {
-        if (move.effect.includes('$')) {
-          move.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
-        }
-      })
+      // moveSet.forEach(move => {
+      //   if (move.effect.includes('$')) {
+      //     move.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+      //   }
+      // })
 
       let growthRate = pokemonExists.growthRate
 
@@ -207,6 +254,8 @@ const generatePokemon = async (req, res) => {
 
       const generatedPokemon = {
         name: pokemonExists.name,
+        owner: null,
+        originalOwner: null,
         level: pokemonLevel,
         types: pokemonExists.types,
         pokedexNum: pokemonExists.pokedexNum,
@@ -235,7 +284,8 @@ const generatePokemon = async (req, res) => {
         baseExpYield: pokemonExists.baseExpYield,
       }
 
-      res.status(200).json(generatedPokemon)
+      const newPokemon = await Pokemon.create(generatedPokemon)
+      res.status(200).json(newPokemon)
     } else {
       let pokemonLevel
   
@@ -546,6 +596,8 @@ const generatePokemon = async (req, res) => {
   
       const generatedPokemon = {
         name: foundPokemon.data.name,
+        owner: null,
+        originalOwner: null,
         level: pokemonLevel,
         types: typeSet,
         pokedexNum: foundPokemon.data.id,
@@ -574,8 +626,9 @@ const generatePokemon = async (req, res) => {
         baseExpYield: foundPokemon.data.base_experience,
         holdItem: null,
       }
-  
-      res.status(200).json(generatedPokemon)
+      
+      const newPokemon = await Pokemon.create(generatedPokemon)
+      res.status(200).json(newPokemon)
 
     }
 

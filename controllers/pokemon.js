@@ -1,4 +1,6 @@
 import { Pokemon } from '../models/pokemon.js'
+import { Profile } from '../models/profile.js'
+import { Move } from '../models/move.js'
 import axios from 'axios'
 import * as algorithms from '../data/algorithms.js'
 
@@ -33,6 +35,28 @@ const updatePokemon = async (req, res) => {
       { new: true }
     ).populate('owner')
     res.status(200).json(pokemon)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const deletePokemon = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.findById(req.params.id)
+    if (pokemon.owner !== null && pokemon.owner === req.user.profile) {
+      const deletedPokemon = await Pokemon.findByIdAndDelete(req.params.id)
+      const profile = await Profile.findById(req.user.profile)
+      profile.party.remove({ _id: req.params.id })
+      profile.pokemonPC.remove({ _id: req.params.id })
+      await profile.save()
+      res.status(200).json(deletedPokemon)
+    } else if (!pokemon.owner) {
+      const deletedPokemon = await Pokemon.findByIdAndDelete(req.params.id)
+      res.status(200).json(deletedPokemon)
+    } else {
+      res.status(401).json("NOT AUTHORIZED: Cannot delete other user's Pokémon!")
+    }
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -508,7 +532,6 @@ const evolvePokemon = async (req, res) => {
         ).populate('owner')
   
         
-        // console.log('TESTING HERE', evolvedPokemon)
       res.status(201).json(evolvedPokemon)
 
     }
@@ -538,46 +561,26 @@ const newMove = async (req, res) => {
     if (knowsMove === false) {
 
       if (searchMove.method === 'level-up' && searchMove.level === pokemon.level) {
-        const newMoveData = await axios.get(`${searchMove.url}`)
-        const move = newMoveData.data
-  
-        const newMove = {
-          name: `${move.name}`,
-          type: `${move.type.name}`,
-          accuracy: move.accuracy,
-          effect: `${move.effect_entries[0].short_effect}`,
-          effectChance: move.effect_chance,
-          damageClass: `${move.damage_class.name}`,
-          totalPP: move.pp,
-          currentPP: move.pp,
-          power: move.power,
-          priority: move.priority,
-        }
-
-        newMove.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
-  
-        if (pokemon.moveSet.length === 4) {
-          const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
-          moveDoc.set(newMove)
-          await pokemon.save()
-  
-          res.status(201).json(moveDoc)
+        const dataBaseMove = await Move.findOne({ name: searchMove.name })
+        if (dataBaseMove) {
+          if (pokemon.moveSet.length === 4) {
+            const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+            moveDoc.set(dataBaseMove)
+            await pokemon.save()
+    
+            res.status(201).json(dataBaseMove)
+          } else {
+            pokemon.moveSet.push(dataBaseMove)
+            await pokemon.save()
+            const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
+    
+            res.status(201).json(newMoveDoc)
+          }
         } else {
-          pokemon.moveSet.push(newMove)
-          await pokemon.save()
-          const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
-  
-          res.status(201).json(newMoveDoc)
-        }
-  
-      } else if (searchMove.method === 'machine' && req.body.machine) {
-        const machine = req.body.machine
-  
-        if (searchMove.name === machine.move) {
           const newMoveData = await axios.get(`${searchMove.url}`)
           const move = newMoveData.data
-  
-          const newMove = {
+    
+          const newMoveForm = {
             name: `${move.name}`,
             type: `${move.type.name}`,
             accuracy: move.accuracy,
@@ -589,9 +592,11 @@ const newMove = async (req, res) => {
             power: move.power,
             priority: move.priority,
           }
-
-          newMove.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
   
+          newMoveForm.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+
+          const newMove = await Move.create(newMoveForm)
+    
           if (pokemon.moveSet.length === 4) {
             const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
             moveDoc.set(newMove)
@@ -606,6 +611,62 @@ const newMove = async (req, res) => {
             res.status(201).json(newMoveDoc)
           }
         }
+      } else if (searchMove.method === 'machine' && req.body.machine) {
+        const machine = req.body.machine
+  
+        if (searchMove.name === machine.move) {
+          const dataBaseMove = await Move.findOne({ name: searchMove.name })
+
+          if (dataBaseMove) {
+            if (pokemon.moveSet.length === 4) {
+              const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+              moveDoc.set(dataBaseMove)
+              await pokemon.save()
+      
+              res.status(201).json(moveDoc)
+            } else {
+              pokemon.moveSet.push(dataBaseMove)
+              await pokemon.save()
+              const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
+      
+              res.status(201).json(newMoveDoc)
+            }
+          } else {
+            const newMoveData = await axios.get(`${searchMove.url}`)
+            const move = newMoveData.data
+    
+            const newMoveForm = {
+              name: `${move.name}`,
+              type: `${move.type.name}`,
+              accuracy: move.accuracy,
+              effect: `${move.effect_entries[0].short_effect}`,
+              effectChance: move.effect_chance,
+              damageClass: `${move.damage_class.name}`,
+              totalPP: move.pp,
+              currentPP: move.pp,
+              power: move.power,
+              priority: move.priority,
+            }
+  
+            newMoveForm.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+
+            const newMove = await Move.create(newMoveForm)
+    
+            if (pokemon.moveSet.length === 4) {
+              const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+              moveDoc.set(newMove)
+              await pokemon.save()
+      
+              res.status(201).json(moveDoc)
+            } else {
+              pokemon.moveSet.push(newMove)
+              await pokemon.save()
+              const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
+      
+              res.status(201).json(newMoveDoc)
+            }
+          }
+          }
   
       } else {
         res.status(401).json('Cannot Learn Move.')
@@ -624,6 +685,7 @@ export {
   create,
   show,
   updatePokemon,
+  deletePokemon,
   expGain,
   levelUpPokemon,
   evolvePokemon,
