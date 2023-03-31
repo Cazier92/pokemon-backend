@@ -12,6 +12,7 @@ router.put('/update/:id', pokemonCtrl.updatePokemon)
 router.put('/levelup/:id', pokemonCtrl.levelUpPokemon)
 router.put('/evolve/:id', pokemonCtrl.evolvePokemon)
 router.put('/expgain/:id', pokemonCtrl.expGain)
+router.put('/newmove/:id', pokemonCtrl.newMove)
 
 /*---------- Protected Routes ----------*/
 router.use(decodeUserFromToken)

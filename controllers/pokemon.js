@@ -296,212 +296,319 @@ const evolvePokemon = async (req, res) => {
   try {
     const pokemon = await Pokemon.findById(req.params.id)
     let evolvePokemon
+
     if (req.body.item) {
       pokemon.evolvesTo.forEach(evolution => {
         if (evolution.item === req.body.item) {
           evolvePokemon = evolution.name
+        } else {
+          res.status(401).json('Cannot Evolve Pokemon')
+          return
         }
       })
-    } else {
+    } else  {
       pokemon.evolvesTo.forEach(evolution => {
         if (evolution.trigger === 'level-up' && evolution.minLevel !== null && pokemon.level >= evolution.minLevel) {
           evolvePokemon = evolution.name
         } else if (evolution.trigger === 'level-up' && evolution.minLevel === null && pokemon.level >= 32) {
           evolvePokemon = evolution.name
+        } else {
+          res.status(401).json('Cannot Evolve Pokemon')
+          return
         }
       })
     }
-    
-    const evolutionPokemonData = await axios.get(`https://pokeapi.co/api/v2/pokemon/${evolvePokemon}`)
-    
-    const eData = evolutionPokemonData.data
-    
-    const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${evolvePokemon}`)
-    
-    const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
 
-    
-    let evolves = false
-    let evolvesTo = []
-
-
-
-    if (evolutionChainData.data.chain.species.name === eData.name){
-
-      if (evolutionChainData.data.chain.evolves_to.length > 1) {
-
-        evolutionChainData.data.chain.evolves_to.forEach(evolution => {
-
-          evolution.evolution_details.forEach(evolutionType => {
-            if (evolutionType.item !== null) {
-              evolves = true
-              evolvesTo.push({
-                name: `${evolution.species.name}`,
-                trigger: evolutionType.trigger.name,
-                minLevel: evolutionType.min_level,
-                item: `${evolutionType.item.name}`
-              })
-
-            } else {
-              evolves = true
-              evolvesTo.push({
-                name: `${evolution.species.name}`,
-                trigger: evolutionType.trigger.name,
-                minLevel: evolutionType.min_level,
-                item: null
-              })
-
-            }
+    if (evolvePokemon) {
+      const evolutionPokemonData = await axios.get(`https://pokeapi.co/api/v2/pokemon/${evolvePokemon}`)
+      
+      const eData = evolutionPokemonData.data
+      
+      const speciesData = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${evolvePokemon}`)
+      
+      const evolutionChainData = await axios.get(`${speciesData.data.evolution_chain.url}`)
+  
+      
+      let evolves = false
+      let evolvesTo = []
+  
+  
+  
+      if (evolutionChainData.data.chain.species.name === eData.name){
+  
+        if (evolutionChainData.data.chain.evolves_to.length > 1) {
+  
+          evolutionChainData.data.chain.evolves_to.forEach(evolution => {
+  
+            evolution.evolution_details.forEach(evolutionType => {
+              if (evolutionType.item !== null) {
+                evolves = true
+                evolvesTo.push({
+                  name: `${evolution.species.name}`,
+                  trigger: evolutionType.trigger.name,
+                  minLevel: evolutionType.min_level,
+                  item: `${evolutionType.item.name}`
+                })
+  
+              } else {
+                evolves = true
+                evolvesTo.push({
+                  name: `${evolution.species.name}`,
+                  trigger: evolutionType.trigger.name,
+                  minLevel: evolutionType.min_level,
+                  item: null
+                })
+  
+              }
+            })
           })
-        })
-
-      } else {
-        console.log('hello')
-        if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item !== null) {
-          console.log('ITEM!')
-          evolves = true
-          evolvesTo.push({
-            name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
-            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
-            minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
-            item: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item.name}`
-          })
-        } 
-        else if (evolutionChainData.data.chain.evolves_to.length) {
-          console.log('NO ITEM')
-          evolves = true
-          evolvesTo.push({
-            name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
-            trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
-            minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
-            item: null
-          })
+  
+        } else {
+          console.log('hello')
+          if (evolutionChainData.data.chain.evolves_to.length && evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item !== null) {
+            console.log('ITEM!')
+            evolves = true
+            evolvesTo.push({
+              name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+              trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+              minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+              item: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].item.name}`
+            })
+          } 
+          else if (evolutionChainData.data.chain.evolves_to.length) {
+            console.log('NO ITEM')
+            evolves = true
+            evolvesTo.push({
+              name: `${evolutionChainData.data.chain.evolves_to[0].species.name}`,
+              trigger: `${evolutionChainData.data.chain.evolves_to[0].evolution_details[0].trigger.name}`,
+              minLevel: evolutionChainData.data.chain.evolves_to[0].evolution_details[0].min_level,
+              item: null
+            })
+          }
         }
-      }
-
-    } else if (evolutionChainData.data.chain.evolves_to[0].species.name === eData.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
-      console.log('SECOND EVOLUTION TO THIRD')
-      if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item !== null) {
-        evolves = true
-        evolvesTo.push(
-          {
+  
+      } else if (evolutionChainData.data.chain.evolves_to[0].species.name === eData.name && evolutionChainData.data.chain.evolves_to[0].evolves_to.length) {
+        console.log('SECOND EVOLUTION TO THIRD')
+        if (evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item !== null) {
+          evolves = true
+          evolvesTo.push(
+            {
+              name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
+              trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
+              minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
+              item: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name}`
+          }
+          ) 
+        } else {
+          console.log('THIRD TO FOURTH?')
+          evolves = true
+          evolvesTo.push({
             name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
             trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
             minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
-            item: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].item.name}`
+        })
         }
-        ) 
-      } else {
-        console.log('THIRD TO FOURTH?')
-        evolves = true
-        evolvesTo.push({
-          name: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].species.name}`,
-          trigger: `${evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].trigger.name}`,
-          minLevel: evolutionChainData.data.chain.evolves_to[0].evolves_to[0].evolution_details[0].min_level,
+      }
+  
+  
+  
+      let evolveStats = []
+      let hp, attack, spAttack, defense, spDefense, speed
+      const pokemonLevel = pokemon.level
+  
+  
+  
+      eData.stats.forEach(eStat => {
+        pokemon.stats.forEach(stat => {
+          if (eStat.stat.name === stat.name) {
+            evolveStats.push({
+              name: stat.name,
+              baseStat: eStat.base_stat,
+              effort: eStat.effort,
+              iV: stat.iV,
+              effortPoints: stat.effortPoints
+            })
+            if (eStat.name === 'hp') {
+              hp = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
+            } 
+            else if (eStat.name === 'attack') {
+              attack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+            }
+            else if (eStat.name === 'defense') {
+              defense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+            }
+            else if (eStat.name === 'special-defense') {
+              spDefense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+            }
+            else if (eStat.name === 'special-attack') {
+              spAttack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+            }
+            else if (eStat.name === 'speed') {
+              speed = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
+            }
+          }
+        })
       })
+  
+      let potMoves = []
+  
+      eData.moves.forEach(move => {
+        potMoves.push(
+          {
+            name: `${move.move.name}`,
+            url: `${move.move.url}`,
+            level: move.version_group_details[0].level_learned_at,
+            method: `${move.version_group_details[0].move_learn_method.name}`,
+          }
+        )
+      })
+  
+  
+      let typeSet = []
+  
+      eData.types.forEach(type => {
+        typeSet.push({
+          slot: type.slot,
+          name: `${type.type.name}`
+        })
+      })
+  
+      let growthRate = speciesData.data.growth_rate.name
+  
+      const name = eData.name
+      const pokedexNum = eData.id
+      const spriteFront = eData.sprites.front_default
+      const spriteBack = eData.sprites.back_default
+  
+  
+      const evolutionForm = {
+        name: name,
+        pokedexNum: pokedexNum,
+        types: typeSet,
+        spriteFront: spriteFront,
+        spriteBack: spriteBack,
+        evolves: evolves,
+        evolvesTo: evolvesTo,
+        stats: evolveStats,
+        potentialMoves: potMoves,
+        growthRate: growthRate,
+        totalHP: hp,
+        attack: attack,
+        defense: defense,
+        spAttack: spAttack,
+        spDefense: spDefense,
+        speed: speed
+      }
+  
+      
+      const evolvedPokemon = await Pokemon.findByIdAndUpdate(
+        req.params.id,
+        evolutionForm,
+        { new: true }
+        ).populate('owner')
+  
+        
+        // console.log('TESTING HERE', evolvedPokemon)
+      res.status(201).json(evolvedPokemon)
+
+    }
+
+    
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const newMove = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.findById(req.params.id)
+    const searchMove = req.body.newMove
+    let knowsMove
+
+    pokemon.moveSet.forEach(move => {
+      if (move.name === searchMove.name) {
+        knowsMove = true
+        res.status(401).json('Move already learned.')
+      } else {
+        knowsMove = false
+      }
+    })
+
+    if (knowsMove === false) {
+
+      if (searchMove.method === 'level-up' && searchMove.level === pokemon.level) {
+        const newMoveData = await axios.get(`${searchMove.url}`)
+        const move = newMoveData.data
+  
+        const newMove = {
+          name: `${move.name}`,
+          type: `${move.type.name}`,
+          accuracy: move.accuracy,
+          effect: `${move.effect_entries[0].short_effect}`,
+          effectChance: move.effect_chance,
+          damageClass: `${move.damage_class.name}`,
+          totalPP: move.pp,
+          currentPP: move.pp,
+          power: move.power,
+          priority: move.priority,
+        }
+  
+        if (pokemon.moveSet.length === 4) {
+          const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+          moveDoc.set(newMove)
+          await pokemon.save()
+  
+          res.status(201).json(moveDoc)
+        } else {
+          pokemon.moveSet.push(newMove)
+          await pokemon.save()
+          const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
+  
+          res.status(201).json(newMoveDoc)
+        }
+  
+      } else if (searchMove.method === 'machine' && req.body.machine) {
+        const machine = req.body.machine
+  
+        if (searchMove.name === machine.move) {
+          const newMoveData = await axios.get(`${searchMove.url}`)
+          const move = newMoveData.data
+  
+          const newMove = {
+            name: `${move.name}`,
+            type: `${move.type.name}`,
+            accuracy: move.accuracy,
+            effect: `${move.effect_entries[0].short_effect}`,
+            effectChance: move.effect_chance,
+            damageClass: `${move.damage_class.name}`,
+            totalPP: move.pp,
+            currentPP: move.pp,
+            power: move.power,
+            priority: move.priority,
+          }
+  
+          if (pokemon.moveSet.length === 4) {
+            const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+            moveDoc.set(newMove)
+            await pokemon.save()
+    
+            res.status(201).json(moveDoc)
+          } else {
+            pokemon.moveSet.push(newMove)
+            await pokemon.save()
+            const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
+    
+            res.status(201).json(newMoveDoc)
+          }
+        }
+  
+      } else {
+        res.status(401).json('Cannot Learn Move.')
       }
     }
 
 
-
-    let evolveStats = []
-    let hp, attack, spAttack, defense, spDefense, speed
-    const pokemonLevel = pokemon.level
-
-
-
-    eData.stats.forEach(eStat => {
-      pokemon.stats.forEach(stat => {
-        if (eStat.stat.name === stat.name) {
-          evolveStats.push({
-            name: stat.name,
-            baseStat: eStat.base_stat,
-            effort: eStat.effort,
-            iV: stat.iV,
-            effortPoints: stat.effortPoints
-          })
-          if (eStat.name === 'hp') {
-            hp = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/ 100) + pokemonLevel + 10)
-          } 
-          else if (eStat.name === 'attack') {
-            attack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-          }
-          else if (eStat.name === 'defense') {
-            defense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-          }
-          else if (eStat.name === 'special-defense') {
-            spDefense = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-          }
-          else if (eStat.name === 'special-attack') {
-            spAttack = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-          }
-          else if (eStat.name === 'speed') {
-            speed = ((((2 * eStat.base_stat + stat.iV + (stat.effortPoints / 4)) * pokemonLevel)/100) + 5)
-          }
-        }
-      })
-    })
-
-    let potMoves = []
-
-    eData.moves.forEach(move => {
-      potMoves.push(
-        {
-          name: `${move.move.name}`,
-          url: `${move.move.url}`,
-          level: move.version_group_details[0].level_learned_at,
-          method: `${move.version_group_details[0].move_learn_method.name}`,
-        }
-      )
-    })
-
-
-    let typeSet = []
-
-    eData.types.forEach(type => {
-      typeSet.push({
-        slot: type.slot,
-        name: `${type.type.name}`
-      })
-    })
-
-    let growthRate = speciesData.data.growth_rate.name
-
-    const name = eData.name
-    const pokedexNum = eData.id
-    const spriteFront = eData.sprites.front_default
-    const spriteBack = eData.sprites.back_default
-
-
-    const evolutionForm = {
-      name: name,
-      pokedexNum: pokedexNum,
-      types: typeSet,
-      spriteFront: spriteFront,
-      spriteBack: spriteBack,
-      evolves: evolves,
-      evolvesTo: evolvesTo,
-      stats: evolveStats,
-      potentialMoves: potMoves,
-      growthRate: growthRate,
-      totalHP: hp,
-      attack: attack,
-      defense: defense,
-      spAttack: spAttack,
-      spDefense: spDefense,
-      speed: speed
-    }
-
-    
-    const evolvedPokemon = await Pokemon.findByIdAndUpdate(
-      req.params.id,
-      evolutionForm,
-      { new: true }
-      ).populate('owner')
-
-      
-      // console.log('TESTING HERE', evolvedPokemon)
-    res.status(200).json(evolvedPokemon)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -516,4 +623,5 @@ export {
   expGain,
   levelUpPokemon,
   evolvePokemon,
+  newMove,
 }
