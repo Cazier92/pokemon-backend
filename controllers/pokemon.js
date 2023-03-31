@@ -553,6 +553,8 @@ const newMove = async (req, res) => {
           power: move.power,
           priority: move.priority,
         }
+
+        newMove.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
   
         if (pokemon.moveSet.length === 4) {
           const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
@@ -587,6 +589,8 @@ const newMove = async (req, res) => {
             power: move.power,
             priority: move.priority,
           }
+
+          newMove.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
   
           if (pokemon.moveSet.length === 4) {
             const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
