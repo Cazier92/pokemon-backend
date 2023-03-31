@@ -50,7 +50,7 @@ const evolutionSchema = new Schema({
   trigger: String,
   minLevel: Number || null,
   item: String || null,
-  heldItem: String
+  heldItem: String || null,
 })
 
 const pokemonSchema = new Schema({
@@ -62,11 +62,18 @@ const pokemonSchema = new Schema({
   types: {type: [typeSchema], required: true},
   pokedexNum: {type: Number, required: true},
   potentialMoves: {type: [potentialMoveSchema], required: true},
-  moveSet: {type: [moveSchema], 
-    required: true,
-    min: 1,
-    max: 4
-  },
+  moveSet: [
+    {type: Schema.Types.ObjectId, 
+    ref: 'Move', 
+    min: 1, 
+    max: 4, 
+    required: true 
+  }],
+  // moveSet: {type: [moveSchema], 
+  //   required: true,
+  //   min: 1,
+  //   max: 4
+  // },
   spriteFront: String,
   spriteBack: String,
   stats: [statSchema],

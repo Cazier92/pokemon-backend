@@ -6,7 +6,7 @@ const router = Router()
 
 /*---------- Public Routes ----------*/
 
-// router.get('/test', pokemonCtrl.test)
+router.get('/', pokemonCtrl.index)
 router.get('/:id', pokemonCtrl.show)
 router.put('/update/:id', pokemonCtrl.updatePokemon)
 router.put('/levelup/:id', pokemonCtrl.levelUpPokemon)

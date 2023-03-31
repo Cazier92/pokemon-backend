@@ -17,6 +17,17 @@ const create = async (req, res) => {
   }
 }
 
+const index = async (req, res) => {
+  try {
+    const allPokemon = await Pokemon.find({})
+    .populate('owner', 'originalOwner')
+    res.status(200).json(allPokemon)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 const show = async (req, res) => {
   try {
     const pokemon = await Pokemon.findById(req.params.id)
@@ -683,6 +694,7 @@ const newMove = async (req, res) => {
 
 export { 
   create,
+  index,
   show,
   updatePokemon,
   deletePokemon,
