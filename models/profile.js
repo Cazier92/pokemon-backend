@@ -8,6 +8,7 @@ const profileSchema = new Schema({
   party: [{type: Schema.Types.ObjectId, ref: 'Pokemon', max: 6 }],
   pokemonPC: [{type: Schema.Types.ObjectId, ref: 'Pokemon'}],
   pack: { type: Schema.Types.ObjectId, ref: 'Pack' },
+  wallet: {type: Number, min: 0, max: 1000000}
 },{
   timestamps: true,
 })

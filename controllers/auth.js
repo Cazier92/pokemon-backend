@@ -10,6 +10,7 @@ function signup(req, res) {
     } else if (!process.env.SECRET) {
       throw new Error('no SECRET in .env file')
     } else {
+      req.body.wallet = 0
       Profile.create(req.body)
       .then(newProfile => {
         req.body.profile = newProfile._id
@@ -30,11 +31,31 @@ function signup(req, res) {
   })
 }
 
-function login(req, res) {
-  User.findOne({ email: req.body.email })
-  .then(user => {
+// function login(req, res) {
+//   User.findOne({ email: req.body.email })
+//   .then(user => {
+//     if (!user) return res.status(401).json({ err: 'User not found' })
+//     user.comparePassword(req.body.pw, (err, isMatch) => {
+//       if (isMatch) {
+//         const token = createJWT(user)
+//         res.json({ token })
+//       } else {
+//         res.status(401).json({ err: 'Incorrect password' })
+//       }
+//     })
+//   })
+//   .catch(err => {
+//     res.status(500).json(err)
+//   })
+// }
+
+async function login(req, res) {
+  try {
+    const user = await User.findOne({
+      email: req.body.email
+    })
     if (!user) return res.status(401).json({ err: 'User not found' })
-    user.comparePassword(req.body.pw, (err, isMatch) => {
+    user.comparePassword(req.body.password, (err, isMatch) => {
       if (isMatch) {
         const token = createJWT(user)
         res.json({ token })
@@ -42,10 +63,10 @@ function login(req, res) {
         res.status(401).json({ err: 'Incorrect password' })
       }
     })
-  })
-  .catch(err => {
-    res.status(500).json(err)
-  })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ err: error })
+  }
 }
 
 function changePassword(req, res) {
