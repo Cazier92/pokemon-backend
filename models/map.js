@@ -21,7 +21,8 @@ const newMapSchema = new Schema({
 
 const mapSchema = new Schema({
   name: { type: String, required: true },
-  url: { type: String, required: true },
+  backgroundUrl: { type: String, required: true },
+  foregroundUrl: { type: String, required: true },
   hardBoundaries: [{type: Number, required: true}],
   newMapBoundaries: [{newMapSchema}],
   battleZones: [{type: Number}],

@@ -32,7 +32,12 @@ const create = async (req, res) => {
 
 const updateMap = async (req, res) => {
   try {
-    
+    const map = await Map.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {new: true}
+    )
+    res.status(201).json(map)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
