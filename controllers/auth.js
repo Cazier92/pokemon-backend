@@ -1,5 +1,7 @@
 import { User } from '../models/user.js'
 import { Profile } from '../models/profile.js'
+import { Pack } from '../models/pack.js'
+import { Map } from '../models/map.js'
 import jwt from 'jsonwebtoken'
 
 function signup(req, res) {
@@ -10,18 +12,27 @@ function signup(req, res) {
     } else if (!process.env.SECRET) {
       throw new Error('no SECRET in .env file')
     } else {
-      req.body.wallet = 0
       Profile.create(req.body)
       .then(newProfile => {
-        req.body.profile = newProfile._id
-        User.create(req.body)
-        .then(user => {
-          const token = createJWT(user)
-          res.status(200).json({ token })
-        })
-        .catch(err => {
-          Profile.findByIdAndDelete(req.body.profile)
-          res.status(500).json({ err: err.errmsg })
+        req.body.owner = newProfile._id
+        Pack.create(req.body)
+        .then(pack => {
+          req.body.pack = pack._id
+          Profile.findByIdAndUpdate(
+            newProfile._id,
+            { pack: req.body.pack },
+            { new: true }
+          )
+          req.body.profile = newProfile._id
+          User.create(req.body)
+          .then(user => {
+            const token = createJWT(user)
+            res.status(200).json({ token })
+          })
+          .catch(err => {
+            Profile.findByIdAndDelete(req.body.profile)
+            res.status(500).json({ err: err.errmsg })
+          })
         })
       })
     }

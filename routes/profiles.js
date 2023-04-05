@@ -9,7 +9,13 @@ const router = Router()
 
 /*---------- Protected Routes ----------*/
 router.use(decodeUserFromToken)
+
 router.get('/', checkAuth, profilesCtrl.index)
+router.get('/pack', checkAuth, profilesCtrl.packIndex)
+router.get('/:id', checkAuth, profilesCtrl.show)
+
 router.put('/:id/add-photo', checkAuth, profilesCtrl.addPhoto)
+router.put('/:id/update', checkAuth, profilesCtrl.updateProfile)
+
 
 export { router }
