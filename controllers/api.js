@@ -105,7 +105,7 @@ const generatePokemon = async (req, res) => {
           console.log(dataBaseMove0)
           moveSet.push(dataBaseMove0)
         } else {
-          const move0 = await axios.get(`${preMoveSet[0].url}`)
+          const move0 = await axios.get(`${preMoveSet[0].move.url}`)
           moveSetData.push(move0.data)
         }
       }
@@ -115,7 +115,7 @@ const generatePokemon = async (req, res) => {
           console.log(dataBaseMove1)
           moveSet.push(dataBaseMove1)
         } else {
-          const move1 = await axios.get(`${preMoveSet[1].url}`)
+          const move1 = await axios.get(`${preMoveSet[1].move.url}`)
           moveSetData.push(move1.data)
         }
       }
@@ -125,7 +125,7 @@ const generatePokemon = async (req, res) => {
           console.log(dataBaseMove2)
           moveSet.push(dataBaseMove2)
         } else {
-          const move2 = await axios.get(`${preMoveSet[2].url}`)
+          const move2 = await axios.get(`${preMoveSet[2].move.url}`)
           moveSetData.push(move2.data)
         }
       }
@@ -135,7 +135,7 @@ const generatePokemon = async (req, res) => {
           console.log(dataBaseMove3)
           moveSet.push(dataBaseMove3)
         } else {
-          const move3 = await axios.get(`${preMoveSet[3].url}`)
+          const move3 = await axios.get(`${preMoveSet[3].move.url}`)
           moveSetData.push(move3.data)
         }
       }
@@ -328,7 +328,58 @@ const generatePokemon = async (req, res) => {
         }
       })
   
+      // let preMoveSet = []
+  
+      // let randomNum = Math.ceil(Math.random()*4)
+      
+      // for (let i = randomNum; i > 0; i--) {
+      //   let eggRandom = Math.floor(Math.random() * eggMoves.length)
+      //   preMoveSet.push(eggMoves[eggRandom])
+      // }
+  
+      // let moveSetData = []
+  
+      // if (preMoveSet[0]) {
+      //   const move0 = await axios.get(`${preMoveSet[0].move.url}`)
+      //   moveSetData.push(move0.data)
+      // }
+      // if (preMoveSet[1]) {
+      //   const move1 = await axios.get(`${preMoveSet[1].move.url}`)
+      //   moveSetData.push(move1.data)
+      // }
+      // if (preMoveSet[2]) {
+      //   const move2 = await axios.get(`${preMoveSet[2].move.url}`)
+      //   moveSetData.push(move2.data)
+      // }
+      // if (preMoveSet[3]) {
+      //   const move3 = await axios.get(`${preMoveSet[3].move.url}`)
+      //   moveSetData.push(move3.data)
+      // }
+      
+      // let moveSet = []
+  
+      // moveSetData.forEach(move => {
+      //   moveSet.push({
+      //     name: `${move.name}`,
+      //     type: `${move.type.name}`,
+      //     accuracy: move.accuracy,
+      //     effect: `${move.effect_entries[0].short_effect}`,
+      //     effectChance: move.effect_chance,
+      //     damageClass: `${move.damage_class.name}`,
+      //     totalPP: move.pp,
+      //     currentPP: move.pp,
+      //     power: move.power,
+      //     priority: move.priority,
+      //   })
+      // })
+  
+      // moveSet.forEach(move => {
+      //   if (move.effect.includes('$')) {
+      //     move.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+      //   }
+      // })
       let preMoveSet = []
+      
   
       let randomNum = Math.ceil(Math.random()*4)
       
@@ -338,46 +389,71 @@ const generatePokemon = async (req, res) => {
       }
   
       let moveSetData = []
-  
-      if (preMoveSet[0]) {
-        const move0 = await axios.get(`${preMoveSet[0].move.url}`)
-        moveSetData.push(move0.data)
-      }
-      if (preMoveSet[1]) {
-        const move1 = await axios.get(`${preMoveSet[1].move.url}`)
-        moveSetData.push(move1.data)
-      }
-      if (preMoveSet[2]) {
-        const move2 = await axios.get(`${preMoveSet[2].move.url}`)
-        moveSetData.push(move2.data)
-      }
-      if (preMoveSet[3]) {
-        const move3 = await axios.get(`${preMoveSet[3].move.url}`)
-        moveSetData.push(move3.data)
-      }
-      
+      // let dataBaseMoves = []
       let moveSet = []
   
-      moveSetData.forEach(move => {
-        moveSet.push({
-          name: `${move.name}`,
-          type: `${move.type.name}`,
-          accuracy: move.accuracy,
-          effect: `${move.effect_entries[0].short_effect}`,
-          effectChance: move.effect_chance,
-          damageClass: `${move.damage_class.name}`,
-          totalPP: move.pp,
-          currentPP: move.pp,
-          power: move.power,
-          priority: move.priority,
-        })
-      })
-  
-      moveSet.forEach(move => {
-        if (move.effect.includes('$')) {
-          move.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+      if (preMoveSet[0]) {
+        const dataBaseMove0 = await Move.findOne({ name: preMoveSet[0].name })
+        if (dataBaseMove0) {
+          console.log(dataBaseMove0)
+          moveSet.push(dataBaseMove0)
+        } else {
+          // console.log(eggMoves[0])
+          console.log(preMoveSet[0])
+          const move0 = await axios.get(`${preMoveSet[0].move.url}`)
+          moveSetData.push(move0.data)
         }
-      })
+      }
+      if (preMoveSet[1]) {
+        const dataBaseMove1 = await Move.findOne({ name: preMoveSet[1].name })
+        if (dataBaseMove1) {
+          console.log(dataBaseMove1)
+          moveSet.push(dataBaseMove1)
+        } else {
+          const move1 = await axios.get(`${preMoveSet[1].move.url}`)
+          moveSetData.push(move1.data)
+        }
+      }
+      if (preMoveSet[2]) {
+        const dataBaseMove2 = await Move.findOne({ name: preMoveSet[2].name })
+        if (dataBaseMove2) {
+          console.log(dataBaseMove2)
+          moveSet.push(dataBaseMove2)
+        } else {
+          const move2 = await axios.get(`${preMoveSet[2].move.url}`)
+          moveSetData.push(move2.data)
+        }
+      }
+      if (preMoveSet[3]) {
+        const dataBaseMove3 = await Move.findOne({ name: preMoveSet[3].name })
+        if (dataBaseMove3) {
+          console.log(dataBaseMove3)
+          moveSet.push(dataBaseMove3)
+        } else {
+          const move3 = await axios.get(`${preMoveSet[3].move.url}`)
+          moveSetData.push(move3.data)
+        }
+      }
+
+      for(let i = 0; i < moveSetData.length; i++) {
+        let effect = moveSetData[i].effect_entries[0].short_effect
+        if (effect.includes('$')) {
+          effect = (effect.replace('$effect_chance', `${moveSetData[i].effect_chance}`))
+        }
+        const newMove = await Move.create({
+          name: `${moveSetData[i].name}`,
+          type: `${moveSetData[i].type.name}`,
+          accuracy: moveSetData[i].accuracy,
+          effect: `${effect}`,
+          effectChance: moveSetData[i].effect_chance,
+          damageClass: `${moveSetData[i].damage_class.name}`,
+          totalPP: moveSetData[i].pp,
+          currentPP: moveSetData[i].pp,
+          power: moveSetData[i].power,
+          priority: moveSetData[i].priority,
+        })
+        moveSet.push(newMove)
+      }
   
       let typeSet = []
   
@@ -628,6 +704,7 @@ const generatePokemon = async (req, res) => {
       }
       
       const newPokemon = await Pokemon.create(generatedPokemon)
+      console.log(newPokemon)
       res.status(200).json(newPokemon)
 
     }

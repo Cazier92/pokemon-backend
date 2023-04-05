@@ -5,6 +5,7 @@ const Schema = mongoose.Schema
 const positionSchema = new Schema({
   x: {type: Number, required: true, default: 0},
   y: {type: Number, required: true, default: 0},
+  land: Boolean
 },{
   timestamps: true,
 })
@@ -21,7 +22,8 @@ const profileSchema = new Schema({
     type: positionSchema,
     default: {
       x: 0,
-      y: 0
+      y: 0,
+      land: true,
     }
   },
 },{
