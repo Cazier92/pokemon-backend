@@ -18,11 +18,29 @@ const newMapSchema = new Schema({
   timestamps: true,
 })
 
+const pokemonFoundSchema = new Schema({
+  pokedexNums: [{ type: Number, required: true }],
+  minLevel: { type: Number, min: 1, max: 50},
+  maxLevel: { type: Number, min: 5, max: 75},
+},{
+  timestamps: true,
+})
+
 
 const mapSchema = new Schema({
   name: { type: String, required: true },
   backgroundUrl: { type: String, required: true },
   foregroundUrl: { type: String, required: true },
+  grassPokemon: { type: pokemonFoundSchema, default: {
+    pokedexNums: [13],
+    minLevel: 3,
+    maxLevel: 5
+  }},
+  waterPokemon: { type: pokemonFoundSchema, default: {
+    pokedexNums: [90],
+    minLevel: 3,
+    maxLevel: 5
+  }},
   hardBoundaries: [{type: Number, required: true}],
   newMapBoundaries: [{newMapSchema}],
   battleZones: [{type: Number}],
