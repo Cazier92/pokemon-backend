@@ -52,8 +52,46 @@ const updatePokemon = async (req, res) => {
   }
 }
 
-const catchPokemon = async (req, res) => {
+const addPokemonToParty = async (req, res) => {
+  try {
+    const user = await Profile.findById(req.params.userId)
+    const pokemon = await Pokemon.findByIdAndUpdate(
+      req.params.pokemonId,
+      { owner: user, originalOwner: user },
+      { new: true }
+    )
+    const profile = await Profile.findByIdAndUpdate(
+      req.user.profile,
+      { $push: { party: pokemon }},
+      { new: true }
+    ).populate('party')
 
+    res.status(201).json(profile)
+  } catch (error) {
+    console.log(err)
+    res.status(500).json(err)
+  }
+}
+
+const addPokemonToPC = async (req, res) => {
+  try {
+    const user = await Profile.findById(req.params.userId)
+    const pokemon = await Pokemon.findByIdAndUpdate(
+      req.params.pokemonId,
+      { owner: user, originalOwner: user },
+      { new: true }
+    )
+    const profile = await Profile.findByIdAndUpdate(
+      req.user.profile,
+      { $push: { pokemonPC: pokemon }},
+      { new: true }
+    )
+
+    res.status(201).json(profile)
+  } catch (error) {
+    console.log(err)
+    res.status(500).json(err)
+  }
 }
 
 const deletePokemon = async (req, res) => {
@@ -797,4 +835,6 @@ export {
   levelUpPokemon,
   evolvePokemon,
   newMove,
+  addPokemonToParty,
+  addPokemonToPC,
 }

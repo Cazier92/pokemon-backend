@@ -71,4 +71,20 @@ function packIndex(req, res) {
   })
 }
 
-export { index, addPhoto, show, updateProfile, packIndex }
+const associatePack = async (req, res) => {
+  try {
+    const pack = await Pack.findOne({ owner: req.user.profile })
+    const profile = await Profile.findByIdAndUpdate(
+      req.user.profile,
+      { pack: pack },
+      { new: true }
+    ).populate('pack')
+    res.status(201).json(profile)
+  } catch (error) {
+    console.log(err)
+    res.status(500).json(err)
+  }
+}
+
+
+export { index, addPhoto, show, updateProfile, packIndex, associatePack }

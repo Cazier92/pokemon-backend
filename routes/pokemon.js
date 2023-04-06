@@ -8,6 +8,7 @@ const router = Router()
 
 router.get('/', pokemonCtrl.index)
 router.get('/:id', pokemonCtrl.show)
+
 router.put('/update/:id', pokemonCtrl.updatePokemon)
 router.put('/levelup/:id', pokemonCtrl.levelUpPokemon)
 router.put('/evolve/:id', pokemonCtrl.evolvePokemon)
@@ -16,7 +17,11 @@ router.put('/newmove/:id', pokemonCtrl.newMove)
 
 /*---------- Protected Routes ----------*/
 router.use(decodeUserFromToken)
-router.post('/', pokemonCtrl.create)
+
+router.put('/party/:userId/:pokemonId', checkAuth, pokemonCtrl.addPokemonToParty)
+router.put('/pc/:userId/:pokemonId', checkAuth, pokemonCtrl.addPokemonToPC)
+
+router.post('/', checkAuth, pokemonCtrl.create)
 
 
 export { router }

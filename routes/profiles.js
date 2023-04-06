@@ -6,14 +6,15 @@ const router = Router()
 
 /*---------- Public Routes ----------*/
 
+router.get('/:id', profilesCtrl.show)
 
 /*---------- Protected Routes ----------*/
 router.use(decodeUserFromToken)
 
 router.get('/', checkAuth, profilesCtrl.index)
 router.get('/pack', checkAuth, profilesCtrl.packIndex)
-router.get('/:id', checkAuth, profilesCtrl.show)
 
+router.put('/pack', checkAuth, profilesCtrl.associatePack)
 router.put('/:id/add-photo', checkAuth, profilesCtrl.addPhoto)
 router.put('/:id/update', checkAuth, profilesCtrl.updateProfile)
 
