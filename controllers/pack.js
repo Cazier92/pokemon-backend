@@ -1,4 +1,4 @@
-import { Pack } from '../models/map.js'
+import { Pack } from '../models/pack.js'
 import { Ball } from '../models/ball.js'
 import { Machine } from '../models/machine.js'
 import { Medicine } from '../models/medicine.js'
@@ -17,6 +17,11 @@ const index = async (req, res) => {
 const show = async (req, res) => {
   try {
     const pack = await Pack.findOne({ owner: req.user.profile })
+    .populate('owner')
+    .populate('medicinePocket')
+    .populate('machinePocket')
+    .populate('ballPocket')
+    .populate('keyItemPocket')
     res.status(200).json(pack)
   } catch (error) {
     console.log(error)
@@ -26,9 +31,10 @@ const show = async (req, res) => {
 
 const createBall = async (req, res) => {
   try {
+    const userPack = await Pack.findOne({ owner: req.user.profile })
     const ball = await Ball.create(req.body)
     const pack = await Pack.findByIdAndUpdate(
-      req.params.id,
+      userPack._id,
       { $push: { ballPocket: ball }},
       { new: true }
     ).populate('ballPocket')
@@ -41,9 +47,10 @@ const createBall = async (req, res) => {
 
 const createMedicine = async (req, res) => {
   try {
+    const userPack = await Pack.findOne({ owner: req.user.profile })
     const medicine = await Medicine.create(req.body)
     const pack = await Pack.findByIdAndUpdate(
-      req.params.id,
+      userPack._id,
       { $push: { medicinePocket: medicine }},
       { new: true }
     ).populate('medicinePocket')
@@ -56,9 +63,10 @@ const createMedicine = async (req, res) => {
 
 const createMachine = async (req, res) => {
   try {
+    const userPack = await Pack.findOne({ owner: req.user.profile })
     const machine = await Machine.create(req.body)
     const pack = await Pack.findByIdAndUpdate(
-      req.params.id,
+      userPack._id,
       { $push: { machinePocket: machine }},
       { new: true }
     ).populate('machinePocket')
@@ -71,9 +79,10 @@ const createMachine = async (req, res) => {
 
 const createKeyItem = async (req, res) => {
   try {
+    const userPack = await Pack.findOne({ owner: req.user.profile })
     const keyItem = await KeyItem.create(req.body)
     const pack = await Pack.findByIdAndUpdate(
-      req.params.id,
+      userPack._id,
       { $push: { keyItemPocket: keyItem }},
       { new: true }
     ).populate('machinePocket')
