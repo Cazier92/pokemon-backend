@@ -83,7 +83,7 @@ const pokemonSchema = new Schema({
   speed: Number,
   effortPointTotal: {type: Number, min: 0, max: 510},
   statusCondition: {
-    type: String,
+    type: String | null,
     enum: [
       'paralyze',
       'sleep',
