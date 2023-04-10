@@ -7,6 +7,7 @@ const packSchema = new Schema({
   medicinePocket: [{type: Schema.Types.ObjectId, ref: 'Medicine'}],
   machinePocket: [{type: Schema.Types.ObjectId, ref: 'Machine'}],
   ballPocket: [{type: Schema.Types.ObjectId, ref: 'Ball'}],
+  keyItemPocket: [{type: Schema.Types.ObjectId, ref: 'KeyItem'}],
 },{
   timestamps: true,
 })
