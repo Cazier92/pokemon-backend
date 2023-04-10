@@ -29,6 +29,24 @@ const show = async (req, res) => {
   }
 }
 
+const changePackStatus = async (req, res) => {
+  try {
+    const pack = await Pack.findOneAndUpdate(
+      { owner: req.user.profile },
+      { newPack: false },
+      { new: true }
+    ).populate('owner')
+    .populate('medicinePocket')
+    .populate('machinePocket')
+    .populate('ballPocket')
+    .populate('keyItemPocket')
+    res.status(201).json(pack)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 const createBall = async (req, res) => {
   try {
     const userPack = await Pack.findOne({ owner: req.user.profile })
@@ -97,6 +115,7 @@ const createKeyItem = async (req, res) => {
 export { 
   index,
   show,
+  changePackStatus,
   createBall,
   createMedicine,
   createMachine,

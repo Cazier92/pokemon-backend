@@ -13,6 +13,8 @@ router.use(decodeUserFromToken)
 
 router.get('/userPack', checkAuth, packCtrl.show)
 
+router.put('/status', checkAuth, packCtrl.changePackStatus)
+
 router.post('/ball', checkAuth, packCtrl.createBall)
 
 
