@@ -10,7 +10,19 @@ const medicineSchema = new Schema({
       'totalHP', 'attack', 'spAttack', 'defense', 'spDefense', 'speed', 'level', 'status', 'totalPP', 'currentPP', 'currentHP'
     ]
   }],
-  value: Number | null,
+  value: { type: Number, required: true },
+  condition: {
+    type: String,
+    enum: [
+      'paralyze',
+      'sleep',
+      'freeze',
+      'confuse',
+      'burn',
+      'poison',
+      'all'
+    ]
+  },
   description: { type: String, required: true },
 },{
   timestamps: true,
