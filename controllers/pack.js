@@ -7,6 +7,7 @@ import { KeyItem } from '../models/keyItem.js'
 const index = async (req, res) => {
   try {
     const packs = await Pack.find({})
+    .populate('ballPocket')
     res.status(200).json(packs)
   } catch (error) {
     console.log(error)
@@ -34,7 +35,7 @@ const changePackStatus = async (req, res) => {
     const pack = await Pack.findOneAndUpdate(
       { owner: req.user.profile },
       { newPack: false },
-      { new: true }
+      { new: false }
     ).populate('owner')
     .populate('medicinePocket')
     .populate('machinePocket')

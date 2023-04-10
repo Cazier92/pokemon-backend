@@ -13,6 +13,7 @@ const machineSchema = new Schema({
     ]
   },
   description: { type: String, required: true },
+  cost: { type: Number, required: true },
 },{
   timestamps: true,
 })
