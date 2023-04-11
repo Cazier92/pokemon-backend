@@ -17,7 +17,7 @@ const profileSchema = new Schema({
   pokemonPC: [{type: Schema.Types.ObjectId, ref: 'Pokemon'}],
   pack: { type: Schema.Types.ObjectId, ref: 'Pack' },
   wallet: {type: Number, min: 0, max: 1000000, default: 0},
-  currentMap: { type: Schema.Types.ObjectId, ref: 'Map' },
+  currentMap: { type: Schema.Types.ObjectId, ref: 'Map', default: '6435c73046e3cf049208d765'},
   coordinates: {
     type: positionSchema,
     default: {

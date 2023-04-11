@@ -70,7 +70,7 @@ const generatePokemon = async (req, res) => {
         }
       })
 
-      
+
       let eggMoves = []
       
       pokemonExists.potentialMoves.forEach(move => {
@@ -248,7 +248,6 @@ const generatePokemon = async (req, res) => {
         spDefense: spDefense,
         speed: speed,
         effortPointTotal: 0,
-        statusCondition: null,
         captureRate: pokemonExists.captureRate,
         growthRate: growthRate,
         levelBaseExp: levelBaseExp,
@@ -617,7 +616,6 @@ const generatePokemon = async (req, res) => {
         spDefense: spDefense,
         speed: speed,
         effortPointTotal: 0,
-        statusCondition: null,
         captureRate: captureRate,
         growthRate: growthRate,
         levelBaseExp: levelBaseExp,

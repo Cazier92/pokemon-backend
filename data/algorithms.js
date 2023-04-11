@@ -150,8 +150,37 @@ function expGainCalc(faintedPokemon, winner, participants) {
 & random: number between .85 & 1
 */
 
-function damage(attacker, target, move) {
-
+function calcDamage(attacker, target, move) {
+  const level = attacker.level
+  const power = move.power
+  let a
+  let d
+  let burn = 1
+  let screen = 1
+  let weather = 1
+  let critical = 1
+  let doubleDmg = 1
+  let stab = 1
+  let typeEffect = 1
+  const randomNum = ((Math.floor(Math.random() * (101 - 85) + 85)) / 100)
+  if (move.damageClass === 'physical') {
+    a = attacker.attack
+    d = target.defense
+  }
+  if (move.damageClass === 'special') {
+    a = attacker.spAttack
+    d = target.spDefense
+  }
+  if (attacker.statusCondition === 'burn') {
+    burn = 0.5
+  }
+  attacker.types.forEach(type => {
+    if (move.type === type.name) {
+      stab = 1.5
+    }
+  })
+  const damage = ((((((2* level)/5)+2)* power * (a/d)) /50) * burn * screen * weather +2 ) * critical * doubleDmg * stab * typeEffect * randomNum
+  return damage
 }
 
 export {
