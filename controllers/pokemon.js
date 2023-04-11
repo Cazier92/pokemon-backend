@@ -31,7 +31,23 @@ const index = async (req, res) => {
 const show = async (req, res) => {
   try {
     const pokemon = await Pokemon.findById(req.params.id)
+    .populate('moveSet')
     res.status(200).json(pokemon)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const showParty = async (req, res) => {
+  try {
+    const profile = await Profile.findById(req.user.profile)
+    let partyPokemon = []
+    for (let i = 0; i < profile.party.length; i++) {
+      const pokemon = await Pokemon.findById(profile.party[i])
+      partyPokemon.push(pokemon)
+    }
+    res.status(200).json(partyPokemon)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -829,6 +845,7 @@ export {
   create,
   index,
   show,
+  showParty,
   updatePokemon,
   deletePokemon,
   expGain,
