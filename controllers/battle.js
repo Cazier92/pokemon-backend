@@ -9,18 +9,24 @@ const useMove = async (req, res) => {
     const user = await Pokemon.findById(req.params.userId)
     const target = await Pokemon.findById(req.params.targetId)
     const damage = algorithms.calcDamage(user, target, move)
+    // console.log(damage)
 
     if (target.currentHP - damage > 0) {
+      const newHP = target.currentHP - damage
+      console.log(`DOWN TO ${newHP}`)
+      req.body.currentHP = newHP
       const updatedTarget = await Pokemon.findByIdAndUpdate(
         req.params.targetId,
-        { currentHp: (target.currentHP - damage)},
+        req.body,
         { new: true }
       )
       res.status(201).json(updatedTarget)
     } else {
+      console.log('DOWN TO ZERO')
+      req.body.currentHP = 0
       const updatedTarget = await Pokemon.findByIdAndUpdate(
         req.params.targetId,
-        { currentHp: 0},
+        req.body,
         { new: true }
       )
       res.status(201).json(updatedTarget)
