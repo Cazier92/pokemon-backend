@@ -162,6 +162,405 @@ function calcDamage(attacker, target, move) {
   let doubleDmg = 1
   let stab = 1
   let typeEffect = 1
+  target.types.forEach(type => {
+    if (type === 'normal') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ghost') {
+        typeEffect = typeEffect * 0
+      }
+    }
+    if (type === 'fighting') {
+      if (move.type === 'flying') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+
+      if (move.type === 'psychic') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'dark') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fairy') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'flying') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'electric') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'poison') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'psychic') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'fairy') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'ground') {
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'water') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'electric') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'rock') {
+      if (move.type === 'normal') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'flying') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'water') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'bug') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'flying') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'ghost') {
+      if (move.type === 'normal') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ghost') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'dark') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'steel') {
+      if (move.type === 'normal') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'flying') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'psychic') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'dragon') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fairy') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'fire') {
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'water') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fairy') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'water') {
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'water') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'electric') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'grass') {
+      if (move.type === 'flying') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'water') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'electric') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'electric') {
+      if (move.type === 'flying') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ground') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'electric') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'psychic') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ghost') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'psychic') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'dark') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'ice') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'rock') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+    if (type === 'dragon') {
+      if (move.type === 'fire') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'water') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'grass') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'electric') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'ice') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'dragon') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'fairy') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'dark') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'ghost') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'psychic') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'dark') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'fairy') {
+        typeEffect = typeEffect * 2
+      }
+    }
+    if (type === 'fairy') {
+      if (move.type === 'fighting') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'poison') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'bug') {
+        typeEffect = typeEffect * 0.5
+      }
+      if (move.type === 'steel') {
+        typeEffect = typeEffect * 2
+      }
+      if (move.type === 'dragon') {
+        typeEffect = typeEffect * 0
+      }
+      if (move.type === 'dark') {
+        typeEffect = typeEffect * 0.5
+      }
+    }
+  })
   const randomNum = ((Math.floor(Math.random() * (101 - 85) + 85)) / 100)
   if (move.damageClass === 'physical') {
     a = attacker.attack
@@ -186,6 +585,7 @@ function calcDamage(attacker, target, move) {
 export {
   catchPokemon,
   expGainCalc,
+  calcDamage,
 }
 
 
