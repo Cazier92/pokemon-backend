@@ -258,6 +258,7 @@ const generatePokemon = async (req, res) => {
       }
 
       const newPokemon = await Pokemon.create(generatedPokemon)
+      // .populate('moveSet')
       res.status(200).json(newPokemon)
     } else {
       let pokemonLevel
@@ -627,6 +628,7 @@ const generatePokemon = async (req, res) => {
       }
       
       const newPokemon = await Pokemon.create(generatedPokemon)
+      // .populate('moveSet')
       console.log(newPokemon)
       res.status(200).json(newPokemon)
 
