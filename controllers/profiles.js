@@ -39,8 +39,22 @@ const show = async (req, res) => {
     .populate('pack')
     res.status(200).json(profile)
   } catch (error) {
-    console.log(err)
-    res.status(500).json(err)
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const userProfile = async (req, res) => {
+  try {
+    const profile = await Profile.findById(req.user.profile)
+    .populate('party')
+    .populate('pokemonPC')
+    .populate('currentMap')
+    .populate('pack')
+    res.status(200).json(profile)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
@@ -57,8 +71,8 @@ const updateProfile = async (req, res) => {
     .populate('pack')
     res.status(201).json(profile)
   } catch (error) {
-    console.log(err)
-    res.status(500).json(err)
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
@@ -66,8 +80,8 @@ function packIndex(req, res) {
   Pack.find({})
   .then(packs => res.json(packs))
   .catch(err => {
-    console.log(err)
-    res.status(500).json(err)
+    console.log(error)
+    res.status(500).json(error)
   })
 }
 
@@ -81,10 +95,10 @@ const associatePack = async (req, res) => {
     ).populate('pack')
     res.status(201).json(profile)
   } catch (error) {
-    console.log(err)
-    res.status(500).json(err)
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
 
-export { index, addPhoto, show, updateProfile, packIndex, associatePack }
+export { index, addPhoto, show, userProfile, updateProfile, packIndex, associatePack }

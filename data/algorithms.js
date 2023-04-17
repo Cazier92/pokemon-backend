@@ -16,7 +16,8 @@ function catchPokemon(pokemon, ball) {
   let name = pokemon.name
   
   if (ball.name === 'Master Ball') {
-    return `Yes! ${name} was caught!`
+    console.log(`Yes! ${name} was caught!`)
+    return true
   }
   
   let ballBonus = ball.bonus
@@ -41,26 +42,35 @@ function catchPokemon(pokemon, ball) {
   let b = 1048560 / (Math.sqrt(Math.sqrt(16711680 / a)))
 
   let shakeCount = 4
-  // console.log('hello')
 
-  shakeCheck(shakeCount, b, name)
+  for (let i = shakeCount; i >= 0; i--) {
+    let randomNum = Math.floor(Math.random() * 65536)
+    if (shakeCount <= 0) {
+      return true
+    } else if (randomNum >= b) {
+      return false
+    } else {
+      shakeCount --
+    }
+  }
+
 }
 
 function shakeCheck(count, b, name) {
   let randomNum = Math.floor(Math.random() * 65536)
-  console.log('randomNum',randomNum)
-  console.log('b', b)
+  // console.log('randomNum',randomNum)
+  // console.log('b', b)
 
   if (count <= 0) {
     console.log(`Yes! The ${name} was caught!`) 
-    return
+    return true
   } else if (randomNum >= b) {
     console.log(`Oh no! The wild ${name} escaped!`)
-    return
+    return false
   } else {
     let newCount = count -1
     shakeCheck(newCount, b, name)
-    console.log('count is:', newCount)
+    // console.log('count is:', newCount)
   }
 }
 

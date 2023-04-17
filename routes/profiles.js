@@ -6,12 +6,13 @@ const router = Router()
 
 /*---------- Public Routes ----------*/
 
-router.get('/:id', profilesCtrl.show)
+router.get('/', profilesCtrl.index)
 
 /*---------- Protected Routes ----------*/
 router.use(decodeUserFromToken)
 
-router.get('/', checkAuth, profilesCtrl.index)
+router.get('/user', checkAuth, profilesCtrl.userProfile)
+router.get('/:id', checkAuth, profilesCtrl.show)
 router.get('/pack', checkAuth, profilesCtrl.packIndex)
 
 router.put('/pack', checkAuth, profilesCtrl.associatePack)

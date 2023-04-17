@@ -1,5 +1,7 @@
 import { Pokemon } from '../models/pokemon.js'
+import { Profile } from '../models/profile.js'
 import { Move } from '../models/move.js'
+import { Ball } from '../models/ball.js'
 import * as algorithms from '../data/algorithms.js'
 
 
@@ -52,7 +54,53 @@ const findMove = async (req, res) => {
   }
 }
 
+const useBall = async (req, res) => {
+  try {
+    const ball = await Ball.findById(req.params.ballId)
+    const pokemon = await Pokemon.findById(req.params.pokemonId)
+    if (pokemon.currentHP > 0) {
+      const isCaught = algorithms.catchPokemon(pokemon, ball)
+      console.log(algorithms.catchPokemon(pokemon, ball))
+      const user = await Profile.findById(req.user.profile)
+      // await Ball.findByIdAndDelete(req.params.ballId)
+      if (isCaught) {
+        const updatedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.pokemonId,
+          { owner: req.user.profile, originalOwner: req.user.profile },
+          { new: true }
+        )
+        if (user.party.length < 6) {
+          const updatedProfile = await Profile.findByIdAndUpdate(
+            req.user.profile,
+            { $push: { party: updatedPokemon } },
+            { new: true }
+          )
+          console.log(updatedPokemon)
+          res.status(201).json(updatedProfile)
+        } else {
+          const updatedProfile = await Profile.findByIdAndUpdate(
+            req.user.profile,
+            { $push: { pokemonPC: updatedPokemon } },
+            { new: true }
+          )
+          res.status(201).json(updatedProfile)
+        }
+      } else {
+        await Ball.findByIdAndDelete(req.params.ballId)
+        res.status(200).json(user)
+        // res.status(401).json('Pokemon Escaped!')
+      }
+    } else {
+      res.status(401).json('Pokemon is fainted!')
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 export { 
   useMove,
   findMove,
+  useBall,
 }
