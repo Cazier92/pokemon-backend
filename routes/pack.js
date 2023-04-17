@@ -14,6 +14,7 @@ router.use(decodeUserFromToken)
 router.get('/userPack', checkAuth, packCtrl.show)
 
 router.put('/status', checkAuth, packCtrl.changePackStatus)
+router.put('/useMedicine/:medicineId/:pokemonId', checkAuth, packCtrl.useMedicine)
 
 router.post('/ball', checkAuth, packCtrl.createBall)
 router.post('/medicine', checkAuth, packCtrl.createMedicine)

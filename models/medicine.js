@@ -23,6 +23,8 @@ const medicineSchema = new Schema({
       'all'
     ]
   },
+  revive: {type: Boolean, required: true},
+  reviveHP: {type: Number},
   description: { type: String, required: true },
   cost: { type: Number, required: true },
 },{

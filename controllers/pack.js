@@ -3,6 +3,7 @@ import { Ball } from '../models/ball.js'
 import { Machine } from '../models/machine.js'
 import { Medicine } from '../models/medicine.js'
 import { KeyItem } from '../models/keyItem.js'
+import { Pokemon } from '../models/pokemon.js'
 
 const index = async (req, res) => {
   try {
@@ -112,6 +113,67 @@ const createKeyItem = async (req, res) => {
   }
 }
 
+const useMedicine = async (req, res) => {
+  try {
+    const medicine = await Medicine.findById(req.params.medicineId)
+    const pokemon = await Pokemon.findById(req.params.pokemonId)
+
+    if (medicine.revive) {
+      if (pokemon.currentHP <= 0) {
+        req.body.currentHP = (pokemon.totalHP * reviveHP)
+        const updatedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.pokemonId,
+          { currentHP: req.body.currentHP },
+          { new: true }
+        )
+        res.status(201).json(updatedPokemon)
+      } else {
+        res.status(418).json('Cannot use on unfainted pokemon.')
+      }
+    } else {
+      if (pokemon.currentHP > 0) {
+        if (medicine.affects.includes('currentHP')) {
+          if (pokemon.currentHP < pokemon.totalHP || (medicine.affects.includes('status') && pokemon.statusCondition)) {
+            if (medicine.value + pokemon.currentHP <= pokemon.totalHP) {
+              req.body.currentHP = medicine.value + pokemon.currentHP
+            } else {
+              req.body.currentHP = pokemon.totalHP
+            }
+          } else {
+            res.status(418).json('Pokemon is already at full health!')
+            return
+          }
+        }
+        if (medicine.affects.includes('status')) {
+          if (pokemon.statusCondition || (medicine.affects.includes('currentHP') && pokemon.currentHP < pokemon.totalHP)) {
+            if (pokemon.statusCondition === medicine.condition || medicine.condition === 'all') {
+              req.body.statusCondition = null
+            } else {
+              res.status(418).json(`Pokemon does not have status condition: ${medicine.condition}`)
+              return
+            }
+          } else {
+            res.status(418).json('Pokemon has no status condition!')
+            return
+          }
+        }
+        const updatedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.pokemonId,
+          req.body,
+          { new: true }
+        )
+        await Medicine.findByIdAndDelete(req.params.medicineId)
+        res.status(201).json(updatedPokemon)
+      } else {
+        res.status(418).json('Cannot use on fainted pokemon.')
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 
 export { 
   index,
@@ -121,4 +183,5 @@ export {
   createMedicine,
   createMachine,
   createKeyItem,
+  useMedicine
 }

@@ -58,10 +58,10 @@ const useBall = async (req, res) => {
   try {
     const ball = await Ball.findById(req.params.ballId)
     const pokemon = await Pokemon.findById(req.params.pokemonId)
-    if (pokemon.currentHP > 0) {
+    const user = await Profile.findById(req.user.profile)
+    if (pokemon.currentHP > 0 && !pokemon.owner) {
       const isCaught = algorithms.catchPokemon(pokemon, ball)
       console.log(algorithms.catchPokemon(pokemon, ball))
-      const user = await Profile.findById(req.user.profile)
       // await Ball.findByIdAndDelete(req.params.ballId)
       if (isCaught) {
         const updatedPokemon = await Pokemon.findByIdAndUpdate(
@@ -76,22 +76,25 @@ const useBall = async (req, res) => {
             { new: true }
           )
           console.log(updatedPokemon)
-          res.status(201).json(updatedProfile)
+          res.status(201).json([updatedProfile, updatedPokemon])
         } else {
           const updatedProfile = await Profile.findByIdAndUpdate(
             req.user.profile,
             { $push: { pokemonPC: updatedPokemon } },
             { new: true }
           )
-          res.status(201).json(updatedProfile)
+          res.status(201).json([updatedProfile, updatedPokemon])
         }
       } else {
         await Ball.findByIdAndDelete(req.params.ballId)
-        res.status(200).json(user)
+        res.status(200).json([user, pokemon])
         // res.status(401).json('Pokemon Escaped!')
       }
-    } else {
+    } else if (pokemon.currentHP <= 0) {
       res.status(401).json('Pokemon is fainted!')
+    } else {
+      res.status(401).json(`Cannot catch another person's pokemon!!!`)
+      // res.status(200).json([user, pokemon])
     }
   } catch (error) {
     console.log(error)
