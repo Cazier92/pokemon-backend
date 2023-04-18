@@ -36,8 +36,27 @@ const changePackStatus = async (req, res) => {
     const pack = await Pack.findOneAndUpdate(
       { owner: req.user.profile },
       { newPack: false },
-      { new: false }
+      { new: true }
     ).populate('owner')
+    .populate('medicinePocket')
+    .populate('machinePocket')
+    .populate('ballPocket')
+    .populate('keyItemPocket')
+    res.status(201).json(pack)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const setNewPack = async (req, res) => {
+  try {
+    const pack = await Pack.findByIdAndUpdate(
+      req.params.id,
+      { newPack: true },
+      { new: true }
+      )
+    .populate('owner')
     .populate('medicinePocket')
     .populate('machinePocket')
     .populate('ballPocket')
@@ -57,7 +76,9 @@ const createBall = async (req, res) => {
       userPack._id,
       { $push: { ballPocket: ball }},
       { new: true }
-    ).populate('ballPocket')
+    )
+    .populate('ballPocket')
+    .populate('medicinePocket')
     res.status(201).json(pack)
   } catch (error) {
     console.log(error)
@@ -73,7 +94,9 @@ const createMedicine = async (req, res) => {
       userPack._id,
       { $push: { medicinePocket: medicine }},
       { new: true }
-    ).populate('medicinePocket')
+    )
+    .populate('medicinePocket')
+    .populate('ballPocket')
     res.status(201).json(pack)
   } catch (error) {
     console.log(error)
@@ -179,9 +202,10 @@ export {
   index,
   show,
   changePackStatus,
+  setNewPack,
   createBall,
   createMedicine,
   createMachine,
   createKeyItem,
-  useMedicine
+  useMedicine,
 }

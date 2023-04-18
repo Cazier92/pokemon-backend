@@ -2,6 +2,7 @@ import { Pokemon } from '../models/pokemon.js'
 import { Profile } from '../models/profile.js'
 import { Move } from '../models/move.js'
 import { Ball } from '../models/ball.js'
+import { Medicine } from '../models/medicine.js'
 import * as algorithms from '../data/algorithms.js'
 
 
@@ -87,7 +88,8 @@ const useBall = async (req, res) => {
         }
       } else {
         await Ball.findByIdAndDelete(req.params.ballId)
-        res.status(200).json([user, pokemon])
+        const updatedProfile = await Profile.findById(req.user.profile)
+        res.status(200).json([updatedProfile, pokemon])
         // res.status(401).json('Pokemon Escaped!')
       }
     } else if (pokemon.currentHP <= 0) {
@@ -102,8 +104,71 @@ const useBall = async (req, res) => {
   }
 }
 
+const useMedicine = async (req, res) => {
+  try {
+    const medicine = await Medicine.findById(req.params.medicineId)
+    const pokemon = await Pokemon.findById(req.params.pokemonId)
+
+    if (medicine.revive) {
+      if (pokemon.currentHP <= 0) {
+        req.body.currentHP = (pokemon.totalHP * reviveHP)
+        const updatedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.pokemonId,
+          { currentHP: req.body.currentHP },
+          { new: true }
+        )
+        res.status(201).json(updatedPokemon)
+      } else {
+        res.status(418).json('Cannot use on unfainted pokemon.')
+      }
+    } else {
+      if (pokemon.currentHP > 0) {
+        if (medicine.affects.includes('currentHP')) {
+          if (pokemon.currentHP < pokemon.totalHP || (medicine.affects.includes('status') && pokemon.statusCondition)) {
+            if (medicine.value + pokemon.currentHP <= pokemon.totalHP) {
+              req.body.currentHP = medicine.value + pokemon.currentHP
+            } else {
+              req.body.currentHP = pokemon.totalHP
+            }
+          } else {
+            res.status(418).json('Pokemon is already at full health!')
+            return
+          }
+        }
+        if (medicine.affects.includes('status')) {
+          if (pokemon.statusCondition || (medicine.affects.includes('currentHP') && pokemon.currentHP < pokemon.totalHP)) {
+            if (pokemon.statusCondition === medicine.condition || medicine.condition === 'all') {
+              req.body.statusCondition = null
+            } else {
+              res.status(418).json(`Pokemon does not have status condition: ${medicine.condition}`)
+              return
+            }
+          } else {
+            res.status(418).json('Pokemon has no status condition!')
+            return
+          }
+        }
+        const updatedPokemon = await Pokemon.findByIdAndUpdate(
+          req.params.pokemonId,
+          req.body,
+          { new: true }
+        )
+        await Medicine.findByIdAndDelete(req.params.medicineId)
+        const updatedProfile = await Profile.findById(req.user.profile)
+        res.status(201).json([updatedProfile, updatedPokemon])
+      } else {
+        res.status(418).json('Cannot use on fainted pokemon.')
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 export { 
   useMove,
   findMove,
   useBall,
+  useMedicine,
 }
