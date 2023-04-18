@@ -162,7 +162,10 @@ function expGainCalc(faintedPokemon, winner, participants) {
 
 function calcDamage(attacker, target, move) {
   const level = attacker.level
-  const power = move.power
+  let power = move.power
+  if (power === null) {
+    return 0
+  } 
   let a
   let d
   let burn = 1

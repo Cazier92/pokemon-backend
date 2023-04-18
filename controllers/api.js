@@ -89,10 +89,32 @@ const generatePokemon = async (req, res) => {
   
       let randomNum = Math.ceil(Math.random()*4)
       
-      for (let i = randomNum; i > 0; i--) {
-        let eggRandom = Math.floor(Math.random() * eggMoves.length)
-        preMoveSet.push(eggMoves[eggRandom])
+      // for (let i = randomNum; i > 0; i--) {
+      //   let eggRandom = Math.floor(Math.random() * eggMoves.length)
+      //   preMoveSet.push(eggMoves[eggRandom])
+      // }
+
+      const findMoves = (num) => {
+        if (num > 0) {
+          let eggRandom = Math.floor(Math.random() * eggMoves.length)
+          const move = eggMoves[eggRandom]
+          if (num === randomNum) {
+            if (move.power !== null) {
+              preMoveSet.push(eggMoves[eggRandom])
+              let newNum = num -1
+              findMoves(newNum)
+            } else {
+              findMoves(num)
+            }
+          } else {
+            preMoveSet.push(eggMoves[eggRandom])
+            let newNum = num -1
+            findMoves(newNum)
+          }
+        }
       }
+
+      findMoves(randomNum)
   
       let moveSetData = []
       let moveSet = []
@@ -308,10 +330,32 @@ const generatePokemon = async (req, res) => {
   
       let randomNum = Math.ceil(Math.random()*4)
       
-      for (let i = randomNum; i > 0; i--) {
-        let eggRandom = Math.floor(Math.random() * eggMoves.length)
-        preMoveSet.push(eggMoves[eggRandom])
+      // for (let i = randomNum; i > 0; i--) {
+      //   let eggRandom = Math.floor(Math.random() * eggMoves.length)
+      //   preMoveSet.push(eggMoves[eggRandom])
+      // }
+
+      const findMoves = (num) => {
+        if (num > 0) {
+          let eggRandom = Math.floor(Math.random() * eggMoves.length)
+          const move = eggMoves[eggRandom]
+          if (num === randomNum) {
+            if (move.power !== null) {
+              preMoveSet.push(eggMoves[eggRandom])
+              let newNum = num -1
+              findMoves(newNum)
+            } else {
+              findMoves(num)
+            }
+          } else {
+            preMoveSet.push(eggMoves[eggRandom])
+            let newNum = num -1
+            findMoves(newNum)
+          }
+        }
       }
+
+      findMoves(randomNum)
   
       let moveSetData = []
 

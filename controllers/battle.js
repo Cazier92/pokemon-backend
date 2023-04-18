@@ -91,13 +91,13 @@ const useBall = async (req, res) => {
         await Ball.findByIdAndDelete(req.params.ballId)
         const msg = `Oh no! The wild ${updatedPokemon.name} escaped!`
         const updatedProfile = await Profile.findById(req.user.profile)
-        res.status(200).json([updatedProfile, msg])
+        res.status(200).json([updatedProfile, msg, true])
         // res.status(401).json('Pokemon Escaped!')
       }
     } else if (pokemon.currentHP <= 0) {
-      res.status(418).json([user, 'Pokemon is fainted!'])
+      res.status(418).json([user, 'Pokemon is fainted!', false])
     } else {
-      res.status(418).json([user, `Cannot catch another person's pokemon!!!`])
+      res.status(418).json([user, `Cannot catch another person's pokemon!!!`, false])
       // res.status(200).json([user, pokemon])
     }
   } catch (error) {
