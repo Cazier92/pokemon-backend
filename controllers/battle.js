@@ -76,26 +76,28 @@ const useBall = async (req, res) => {
             { $push: { party: updatedPokemon } },
             { new: true }
           )
-          console.log(updatedPokemon)
-          res.status(201).json([updatedProfile, updatedPokemon])
+          const msg = `Yes! The wild ${updatedPokemon.name} was caught! It has been added to your party!`
+          res.status(201).json([updatedProfile, updatedPokemon, msg])
         } else {
           const updatedProfile = await Profile.findByIdAndUpdate(
             req.user.profile,
             { $push: { pokemonPC: updatedPokemon } },
             { new: true }
           )
-          res.status(201).json([updatedProfile, updatedPokemon])
+          const msg = `Yes! The wild ${updatedPokemon.name} was caught! Your party is full, so it has been sent to your PC.`
+          res.status(201).json([updatedProfile, updatedPokemon, msg])
         }
       } else {
         await Ball.findByIdAndDelete(req.params.ballId)
+        const msg = `Oh no! The wild ${updatedPokemon.name} escaped!`
         const updatedProfile = await Profile.findById(req.user.profile)
-        res.status(200).json([updatedProfile, pokemon])
+        res.status(200).json([updatedProfile, msg])
         // res.status(401).json('Pokemon Escaped!')
       }
     } else if (pokemon.currentHP <= 0) {
-      res.status(401).json('Pokemon is fainted!')
+      res.status(418).json([user, 'Pokemon is fainted!'])
     } else {
-      res.status(401).json(`Cannot catch another person's pokemon!!!`)
+      res.status(418).json([user, `Cannot catch another person's pokemon!!!`])
       // res.status(200).json([user, pokemon])
     }
   } catch (error) {
@@ -119,7 +121,8 @@ const useMedicine = async (req, res) => {
         )
         await Medicine.findByIdAndDelete(req.params.medicineId)
         const updatedProfile = await Profile.findById(req.user.profile)
-        res.status(200).json([updatedProfile, updatedPokemon])
+        const msg = `${updatedPokemon.name} was revived!`
+        res.status(200).json([updatedProfile, updatedPokemon, msg])
       } else {
         res.status(418).json('Cannot use on unfainted pokemon.')
       }
@@ -157,7 +160,8 @@ const useMedicine = async (req, res) => {
         )
         await Medicine.findByIdAndDelete(req.params.medicineId)
         const updatedProfile = await Profile.findById(req.user.profile)
-        res.status(200).json([updatedProfile, updatedPokemon])
+        const msg = `${updatedPokemon.name} was healed!`
+        res.status(200).json([updatedProfile, updatedPokemon, msg])
       } else {
         res.status(418).json('Cannot use on fainted pokemon.')
       }
