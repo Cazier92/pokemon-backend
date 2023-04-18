@@ -89,7 +89,7 @@ const useBall = async (req, res) => {
         }
       } else {
         await Ball.findByIdAndDelete(req.params.ballId)
-        const msg = `Oh no! The wild ${updatedPokemon.name} escaped!`
+        const msg = `Oh no! The wild ${pokemon.name} escaped!`
         const updatedProfile = await Profile.findById(req.user.profile)
         res.status(200).json([updatedProfile, msg, true])
         // res.status(401).json('Pokemon Escaped!')
