@@ -111,13 +111,15 @@ const useMedicine = async (req, res) => {
 
     if (medicine.revive) {
       if (pokemon.currentHP <= 0) {
-        req.body.currentHP = (pokemon.totalHP * reviveHP)
+        req.body.currentHP = (pokemon.totalHP * medicine.reviveHP)
         const updatedPokemon = await Pokemon.findByIdAndUpdate(
           req.params.pokemonId,
           { currentHP: req.body.currentHP },
           { new: true }
         )
-        res.status(201).json(updatedPokemon)
+        await Medicine.findByIdAndDelete(req.params.medicineId)
+        const updatedProfile = await Profile.findById(req.user.profile)
+        res.status(200).json([updatedProfile, updatedPokemon])
       } else {
         res.status(418).json('Cannot use on unfainted pokemon.')
       }
@@ -155,10 +157,36 @@ const useMedicine = async (req, res) => {
         )
         await Medicine.findByIdAndDelete(req.params.medicineId)
         const updatedProfile = await Profile.findById(req.user.profile)
-        res.status(201).json([updatedProfile, updatedPokemon])
+        res.status(200).json([updatedProfile, updatedPokemon])
       } else {
         res.status(418).json('Cannot use on fainted pokemon.')
       }
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const faintWildPokemon = async (req, res) => {
+  try {
+    const pokemon = await Pokemon.findById(req.params.pokemonId)
+    if (pokemon.currentHP <= 0) {
+      const allPokemon = await Pokemon.find({})
+      let matchingPkmn = []
+      allPokemon.forEach(pkmn => {
+        if (pkmn.name === pokemon.name) {
+          matchingPkmn.push(pkmn)
+        }
+      })
+      if (matchingPkmn.length > 1) {
+        const deletedPokemon = await Pokemon.findByIdAndDelete(req.params.pokemonId)
+        res.status(200).json(deletedPokemon)
+      } else {
+        res.status(304).json(pokemon)
+      }
+    } else {
+      res.status(418).json('HP is greater than 0!')
     }
   } catch (error) {
     console.log(error)
@@ -171,4 +199,5 @@ export {
   findMove,
   useBall,
   useMedicine,
+  faintWildPokemon,
 }

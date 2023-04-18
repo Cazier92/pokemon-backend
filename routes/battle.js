@@ -16,5 +16,7 @@ router.put('/move/:moveId/:userId/:targetId', checkAuth, battleCtrl.useMove)
 router.put('/ball/:ballId/:pokemonId', checkAuth, battleCtrl.useBall)
 router.put('/useMedicine/:medicineId/:pokemonId', checkAuth, battleCtrl.useMedicine)
 
+router.delete('/faint/:pokemonId', checkAuth, battleCtrl.faintWildPokemon)
+
 
 export { router }
