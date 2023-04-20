@@ -134,7 +134,7 @@ const deletePokemon = async (req, res) => {
 
 const expGain = async (req, res) => {
   try {
-    const faintedPokemon = req.body.faintedPokemon
+    const faintedPokemon = await Pokemon.findById(req.params.fainted)
     const pokemon = await Pokemon.findById(req.params.id)
     const exp = req.body.exp
     const winner = req.body.winner
@@ -378,10 +378,10 @@ const levelUpPokemon = async (req, res) => {
         
         res.status(200).json(leveledUpPokemon)
       } else {
-        res.status(200).json(pokemon)
+        res.status(418).json('Not enough experience!')
       }
     } else {
-      res.status(200).json(pokemon)
+      res.status(418).json('Max level reached!')
     }
   } catch (error) {
     console.log(error)
@@ -399,7 +399,7 @@ const evolvePokemon = async (req, res) => {
         if (evolution.item === req.body.item) {
           evolvePokemon = evolution.name
         } else {
-          res.status(401).json('Cannot Evolve Pokemon')
+          res.status(418).json('Cannot Evolve Pokemon')
           return
         }
       })
@@ -410,7 +410,7 @@ const evolvePokemon = async (req, res) => {
         } else if (evolution.trigger === 'level-up' && evolution.minLevel === null && pokemon.level >= 32) {
           evolvePokemon = evolution.name
         } else {
-          res.status(401).json('Cannot Evolve Pokemon')
+          res.status(418).json('Cannot Evolve Pokemon')
           return
         }
       })
