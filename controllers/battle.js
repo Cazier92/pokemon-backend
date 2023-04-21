@@ -126,6 +126,32 @@ const useMedicine = async (req, res) => {
       } else {
         res.status(418).json('Cannot use on unfainted pokemon.')
       }
+    } else if (medicine.ether) {
+      const move = Move.findById(req.body.moveId)
+      if (move.currentPP < move.totalPP) {
+        let ppRestored
+        if (move.currentPP + medicine.value <= move.totalPP) {
+          req.body.currentPP = move.currentPP + medicine.value
+          ppRestored = medicine.value
+        } else {
+          req.body.currentPP = move.totalPP
+          ppRestored = move.totalPP - move.currentPP
+        }
+        await Move.findByIdAndUpdate(
+          req.body.moveId,
+          { currentPP: req.body.currentPP },
+          { new: true }
+        )
+        const updatedProfile = await Profile.findById(req.user.Profile)
+        const updatedPokemon = await Pokemon.findById(req.params.pokemonId)
+        const msg = `${updatedPokemon.name} had ${ppRestored} PP restored to ${move.name}!`
+
+        await medicine.findByIdAndDelete(req.params.medicineId)
+
+        res.status(200).json([updatedProfile, updatedPokemon, msg])
+      } else {
+        res.status(418).json('Move already has full PP!')
+      }
     } else {
       if (pokemon.currentHP > 0) {
         if (medicine.affects.includes('currentHP')) {

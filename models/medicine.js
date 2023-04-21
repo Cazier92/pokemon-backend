@@ -25,6 +25,7 @@ const medicineSchema = new Schema({
   },
   revive: {type: Boolean, required: true},
   reviveHP: {type: Number},
+  ether: {type: Boolean, required: true, default: false},
   description: { type: String, required: true },
   cost: { type: Number, required: true },
 },{

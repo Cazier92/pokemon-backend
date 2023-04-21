@@ -136,7 +136,7 @@ const expGain = async (req, res) => {
   try {
     const faintedPokemon = await Pokemon.findById(req.params.fainted)
     const pokemon = await Pokemon.findById(req.params.id)
-    const exp = req.body.exp
+    const exp = faintedPokemon.baseExpYield
     const winner = req.body.winner
 
     let effortPointTotal = pokemon.effortPointTotal
@@ -352,7 +352,7 @@ const levelUpPokemon = async (req, res) => {
   
         const levelUpForm = {
           level: pokemonLevel,
-          totalHp: hp,
+          totalHP: hp,
           currentHP: currentHP,
           attack: attack,
           spAttack: spAttack,
@@ -369,12 +369,6 @@ const levelUpPokemon = async (req, res) => {
           levelUpForm,
           { new: true }
         ).populate('owner')
-  
-        // leveledUpPokemon.evolvesTo.forEach(evolution => {
-        //   if (evolution.trigger === 'level-up' && evolution.minLevel !== null && leveledUpPokemon.level >= evolution.minLevel) {
-            
-        //   }
-        // })
         
         res.status(200).json(leveledUpPokemon)
       } else {
@@ -720,21 +714,41 @@ const newMove = async (req, res) => {
 
     if (knowsMove === false) {
 
-      if (searchMove.method === 'level-up' && searchMove.level === pokemon.level) {
+      if (searchMove.method === 'level-up' && searchMove.level <= pokemon.level) {
         const dataBaseMove = await Move.findOne({ name: searchMove.name })
         if (dataBaseMove) {
-          if (pokemon.moveSet.length === 4) {
-            const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
-            moveDoc.set(dataBaseMove)
-            await pokemon.save()
-    
-            res.status(201).json(dataBaseMove)
+          if (pokemon.moveSet.length >= 4) {
+            let newMoveSet = []
+            for (let i = 0; i < pokemon.moveSet.length; i++) {
+              if (pokemon.moveSet[i]._id === req.body.oldMoveId) {
+                newMoveSet.push(dataBaseMove)
+              }
+              else {
+                newMoveSet.push(pokemon.moveSet[i])
+              }
+            }
+            req.body.moveSet = newMoveSet
+            const updatedPokemon = await Pokemon.findByIdAndUpdate(
+              req.params.id, 
+              { moveSet: req.body.moveSet},
+              { new: true }
+              )
+              
+              res.status(201).json(updatedPokemon)
+              // const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+              // moveDoc.set(dataBaseMove)
+              // await pokemon.save()
           } else {
-            pokemon.moveSet.push(dataBaseMove)
-            await pokemon.save()
-            const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
-    
-            res.status(201).json(newMoveDoc)
+            const updatedPokemon = await Pokemon.findByIdAndUpdate(
+              req.params.id,
+              { $push: { moveSet: dataBaseMove }},
+              { new: true }
+            )
+            
+            res.status(201).json(updatedPokemon)
+            // pokemon.moveSet.push(dataBaseMove)
+            // await pokemon.save()
+            // const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
           }
         } else {
           const newMoveData = await axios.get(`${searchMove.url}`)
@@ -753,22 +767,46 @@ const newMove = async (req, res) => {
             priority: move.priority,
           }
   
-          newMoveForm.effect = (move.effect.replace('$effect_chance', `${move.effectChance}`))
+          newMoveForm.effect = (newMoveForm.effect.replace('$effect_chance', `${move.effectChance}`))
 
           const newMove = await Move.create(newMoveForm)
     
           if (pokemon.moveSet.length === 4) {
-            const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
-            moveDoc.set(newMove)
-            await pokemon.save()
+            // const moveDoc = pokemon.moveSet.id(req.body.oldMoveId)
+            // moveDoc.set(newMove)
+            // await pokemon.save()
     
-            res.status(201).json(moveDoc)
+            // res.status(201).json(pokemon)
+            let newMoveSet = []
+            for (let i = 0; i < pokemon.moveSet.length; i++) {
+              if (pokemon.moveSet[i]._id === req.body.oldMoveId) {
+                newMoveSet.push(newMove)
+              }
+              else {
+                newMoveSet.push(pokemon.moveSet[i])
+              }
+            }
+            req.body.moveSet = newMoveSet
+            const updatedPokemon = await Pokemon.findByIdAndUpdate(
+              req.params.id, 
+              { moveSet: req.body.moveSet},
+              { new: true }
+              )
+              
+              res.status(201).json(updatedPokemon)
           } else {
-            pokemon.moveSet.push(newMove)
-            await pokemon.save()
-            const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
+            // pokemon.moveSet.push(newMove)
+            // await pokemon.save()
+            // const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
     
-            res.status(201).json(newMoveDoc)
+            // res.status(201).json(pokemon)
+            const updatedPokemon = await Pokemon.findByIdAndUpdate(
+              req.params.id,
+              { $push: { moveSet: newMove }},
+              { new: true }
+            )
+            
+            res.status(201).json(updatedPokemon)
           }
         }
       } else if (searchMove.method === 'machine' && req.body.machine) {
@@ -783,13 +821,13 @@ const newMove = async (req, res) => {
               moveDoc.set(dataBaseMove)
               await pokemon.save()
       
-              res.status(201).json(moveDoc)
+              res.status(201).json(pokemon)
             } else {
               pokemon.moveSet.push(dataBaseMove)
               await pokemon.save()
               const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
       
-              res.status(201).json(newMoveDoc)
+              res.status(201).json(pokemon)
             }
           } else {
             const newMoveData = await axios.get(`${searchMove.url}`)
@@ -817,13 +855,13 @@ const newMove = async (req, res) => {
               moveDoc.set(newMove)
               await pokemon.save()
       
-              res.status(201).json(moveDoc)
+              res.status(201).json(pokemon)
             } else {
               pokemon.moveSet.push(newMove)
               await pokemon.save()
               const newMoveDoc = pokemon.moveSet[pokemon.moveSet.length -1]
       
-              res.status(201).json(newMoveDoc)
+              res.status(201).json(pokemon)
             }
           }
           }
@@ -834,6 +872,22 @@ const newMove = async (req, res) => {
     }
 
 
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const restoreAllPP = async (req, res) => {
+  try {
+    const move = await Move.findById(req.params.id)
+    req.body.currentPP = move.totalPP
+    const updatedMove = await Move.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    )
+    res.status(200).json(updatedMove)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -854,4 +908,5 @@ export {
   newMove,
   addPokemonToParty,
   addPokemonToPC,
+  restoreAllPP,
 }

@@ -7,6 +7,7 @@ const router = Router()
 /*---------- Public Routes ----------*/
 
 router.put('/update/:id', pokemonCtrl.updatePokemon)
+router.put('/restorePP/:id', pokemonCtrl.restoreAllPP)
 
 
 /*---------- Protected Routes ----------*/
