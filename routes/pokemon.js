@@ -14,6 +14,7 @@ router.put('/restorePP/:id', pokemonCtrl.restoreAllPP)
 router.use(decodeUserFromToken)
 
 router.get('/', checkAuth, pokemonCtrl.index)
+router.get('/populateParty', checkAuth, pokemonCtrl.populateParty)
 router.get('/partyPokemon', checkAuth, pokemonCtrl.showParty)
 router.get('/:id', checkAuth, pokemonCtrl.show)
 

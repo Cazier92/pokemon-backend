@@ -894,6 +894,30 @@ const restoreAllPP = async (req, res) => {
   }
 }
 
+const populateParty = async (req, res) => {
+  try {
+    const userProfile = await Profile.findById(req.user.profile)
+    .populate('party')
+    let notFainted
+    for (let i=0; i<userProfile.party.length; i++) {
+      if (userProfile.party[i].currentHP > 0) {
+        notFainted = userProfile.party[i]
+        break
+      }
+    }
+    if (notFainted) {
+      const partyPokemon = await Pokemon.findById(notFainted._id)
+      .populate('moveSet')
+      res.status(200).json(partyPokemon)
+    } else {
+      res.status(418).json('All pokemon in party are fainted!')
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 
 export { 
   create,
@@ -909,4 +933,5 @@ export {
   addPokemonToParty,
   addPokemonToPC,
   restoreAllPP,
+  populateParty,
 }
