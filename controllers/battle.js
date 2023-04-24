@@ -110,7 +110,7 @@ const useMedicine = async (req, res) => {
   try {
     const medicine = await Medicine.findById(req.params.medicineId)
     const pokemon = await Pokemon.findById(req.params.pokemonId)
-
+    .populate('moveSet')
     if (medicine.revive) {
       if (pokemon.currentHP <= 0) {
         req.body.currentHP = (pokemon.totalHP * medicine.reviveHP)
@@ -127,7 +127,12 @@ const useMedicine = async (req, res) => {
         res.status(418).json('Cannot use on unfainted pokemon.')
       }
     } else if (medicine.ether) {
-      const move = Move.findById(req.body.moveId)
+      console.log('REQ.BODY.MOVEID', req.body.moveId)
+      const move = await Move.findById(req.body.moveId)
+      console.log('MOVE:', move)
+      console.log('CURRENT PP:', move.currentPP, 'TOTAL PP:', move.totalPP)
+
+
       if (move.currentPP < move.totalPP) {
         let ppRestored
         if (move.currentPP + medicine.value <= move.totalPP) {
@@ -142,11 +147,12 @@ const useMedicine = async (req, res) => {
           { currentPP: req.body.currentPP },
           { new: true }
         )
-        const updatedProfile = await Profile.findById(req.user.Profile)
+        const updatedProfile = await Profile.findById(req.user.profile)
         const updatedPokemon = await Pokemon.findById(req.params.pokemonId)
         const msg = `${updatedPokemon.name} had ${ppRestored} PP restored to ${move.name}!`
+        console.log(msg)
 
-        await medicine.findByIdAndDelete(req.params.medicineId)
+        await Medicine.findByIdAndDelete(req.params.medicineId)
 
         res.status(200).json([updatedProfile, updatedPokemon, msg])
       } else {

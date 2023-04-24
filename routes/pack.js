@@ -19,6 +19,7 @@ router.put('/useMedicine/:medicineId/:pokemonId', checkAuth, packCtrl.useMedicin
 
 router.post('/ball', checkAuth, packCtrl.createBall)
 router.post('/medicine', checkAuth, packCtrl.createMedicine)
+router.post('/testmedicine/:userId', checkAuth, packCtrl.createTestMedicine)
 router.post('/machine', checkAuth, packCtrl.createMachine)
 router.post('/key', checkAuth, packCtrl.createKeyItem)
 

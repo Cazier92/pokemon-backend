@@ -103,6 +103,23 @@ const createMedicine = async (req, res) => {
     res.status(500).json(error)
   }
 }
+const createTestMedicine = async (req, res) => {
+  try {
+    const userPack = await Pack.findOne({ owner: req.params.userId })
+    const medicine = await Medicine.create(req.body)
+    const pack = await Pack.findByIdAndUpdate(
+      userPack._id,
+      { $push: { medicinePocket: medicine }},
+      { new: true }
+    )
+    .populate('medicinePocket')
+    .populate('ballPocket')
+    res.status(201).json(pack)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
 
 const createMachine = async (req, res) => {
   try {
@@ -205,6 +222,7 @@ export {
   setNewPack,
   createBall,
   createMedicine,
+  createTestMedicine,
   createMachine,
   createKeyItem,
   useMedicine,
