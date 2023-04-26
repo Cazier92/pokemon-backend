@@ -62,7 +62,8 @@ const useBall = async (req, res) => {
     const user = await Profile.findById(req.user.profile)
     if (pokemon.currentHP > 0 && !pokemon.owner) {
       const isCaught = algorithms.catchPokemon(pokemon, ball)
-      console.log(algorithms.catchPokemon(pokemon, ball))
+      console.log('ALGORITHM OUTCOME:', algorithms.catchPokemon(pokemon, ball))
+      console.log('ISCAUGHT:', isCaught)
       // await Ball.findByIdAndDelete(req.params.ballId)
       if (isCaught) {
         const updatedPokemon = await Pokemon.findByIdAndUpdate(

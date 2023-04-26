@@ -16,6 +16,7 @@ router.get('/:id', checkAuth, profilesCtrl.show)
 router.get('/pack', checkAuth, profilesCtrl.packIndex)
 
 router.put('/pack', checkAuth, profilesCtrl.associatePack)
+router.put('/partyorder', checkAuth, profilesCtrl.changePartyOrder)
 router.put('/:id/add-photo', checkAuth, profilesCtrl.addPhoto)
 router.put('/:id/update', checkAuth, profilesCtrl.updateProfile)
 

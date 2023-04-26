@@ -46,10 +46,13 @@ function catchPokemon(pokemon, ball) {
   for (let i = shakeCount; i >= 0; i--) {
     let randomNum = Math.floor(Math.random() * 65536)
     if (shakeCount <= 0) {
+      console.log('CAUGHT')
       return true
     } else if (randomNum >= b) {
+      console.log('ESCAPED')
       return false
     } else {
+      console.log('SHAKE COUNT:', shakeCount)
       shakeCount --
     }
   }

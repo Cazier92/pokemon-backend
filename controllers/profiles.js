@@ -100,5 +100,37 @@ const associatePack = async (req, res) => {
   }
 }
 
+const changePartyOrder = async (req, res) => {
+  try {
+    const profile = await Profile.findById(req.user.profile)
+    .populate('party')
+    const swap = req.body.swap
+    let newOrder = []
+    for (let i = 0; i<profile.party.length; i++) {
+      if (i === swap[0]) {
+        newOrder.push(profile.party[swap[1]])
+      } else if (i === swap[1]) {
+        newOrder.push(profile.party[swap[0]])
+      } else {
+        newOrder.push(profile.party[i])
+      }
+    }
+    if (newOrder.length === profile.party.length) {
+      req.body.party = newOrder
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        req.user.profile,
+        { party: req.body.party },
+        { new: true }
+      )
+      res.status(200).json(updatedProfile)
+    } else {
+      res.status(418).json('ERROR')
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
 
-export { index, addPhoto, show, userProfile, updateProfile, packIndex, associatePack }
+
+export { index, addPhoto, show, userProfile, updateProfile, packIndex, associatePack, changePartyOrder }
