@@ -64,20 +64,20 @@ const useBall = async (req, res) => {
       const isCaught = algorithms.catchPokemon(pokemon, ball)
       console.log('ALGORITHM OUTCOME:', algorithms.catchPokemon(pokemon, ball))
       console.log('ISCAUGHT:', isCaught)
-      // await Ball.findByIdAndDelete(req.params.ballId)
       if (isCaught) {
         const updatedPokemon = await Pokemon.findByIdAndUpdate(
           req.params.pokemonId,
           { owner: req.user.profile, originalOwner: req.user.profile },
           { new: true }
-        )
-        if (user.party.length < 6) {
-          const updatedProfile = await Profile.findByIdAndUpdate(
-            req.user.profile,
-            { $push: { party: updatedPokemon } },
-            { new: true }
           )
-          const msg = `Yes! The wild ${updatedPokemon.name} was caught! It has been added to your party!`
+          if (user.party.length < 6) {
+            const updatedProfile = await Profile.findByIdAndUpdate(
+              req.user.profile,
+              { $push: { party: updatedPokemon } },
+              { new: true }
+              )
+              const msg = `Yes! The wild ${updatedPokemon.name} was caught! It has been added to your party!`
+              await Ball.findByIdAndDelete(req.params.ballId)
           res.status(201).json([updatedProfile, updatedPokemon, msg])
         } else {
           const updatedProfile = await Profile.findByIdAndUpdate(
@@ -86,6 +86,7 @@ const useBall = async (req, res) => {
             { new: true }
           )
           const msg = `Yes! The wild ${updatedPokemon.name} was caught! Your party is full, so it has been sent to your PC.`
+          await Ball.findByIdAndDelete(req.params.ballId)
           res.status(201).json([updatedProfile, updatedPokemon, msg])
         }
       } else {
@@ -93,13 +94,11 @@ const useBall = async (req, res) => {
         const msg = `Oh no! The wild ${pokemon.name} escaped!`
         const updatedProfile = await Profile.findById(req.user.profile)
         res.status(200).json([updatedProfile, msg, true])
-        // res.status(401).json('Pokemon Escaped!')
       }
     } else if (pokemon.currentHP <= 0) {
       res.status(418).json([user, 'Pokemon is fainted!', false])
     } else {
       res.status(418).json([user, `Cannot catch another person's pokemon!!!`, false])
-      // res.status(200).json([user, pokemon])
     }
   } catch (error) {
     console.log(error)
