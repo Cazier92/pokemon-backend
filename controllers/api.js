@@ -6,7 +6,8 @@ import { Move } from "../models/move.js";
 const findPokemon = async (req, res) => {
   try {
     const pokemon = await axios.get(`https://pokeapi.co/api/v2/pokemon/${req.params.name}`)
-    res.status(200).json(pokemon.data)
+    console.log(typeof pokemon.data.name)
+    res.status(200).json(pokemon.data.name)
   } catch (error) {
     res.status(500).json(error)
   }

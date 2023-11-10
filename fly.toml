@@ -1,0 +1,20 @@
+# fly.toml app configuration file generated for pokemon-backend-bcazier92 on 2023-11-10T08:08:41-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "pokemon-backend-bcazier92"
+primary_region = "sea"
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[env]
+  PORT = "8080"
